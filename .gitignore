@@ -1,7 +1,6 @@
 *.pyc
 *.xml
 __pycache__/
-
 sigecoraf/settings/development.py
 .idea/
 
