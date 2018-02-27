@@ -1,5 +1,7 @@
-.pyc
-/__pycache__/
-development.py
+*.pyc
+*.xml
+__pycache__/
+
+sigecoraf/settings/development.py
 .idea/
-.xml
+
