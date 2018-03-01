@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app.master',
     'app.nominas',
+    'app.seguridad',
 ]
 
 MIDDLEWARE = [
