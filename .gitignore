@@ -1,6 +1,13 @@
+#extensions to ignore
+*.css
+*.log
+*.map
+*.pot
 *.pyc
-*.xml
-__pycache__/
+*.pyd
+*.pyo
+
+*/__pycache__/
 sigecoraf/settings/development.py
 .idea/
-
+staticfiles/

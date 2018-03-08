@@ -2,18 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="27fe9ba3-d978-492d-8904-6b2b9f51687b" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/api/nominas/__init__.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/api/nominas/serializers.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/api/nominas/urls.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/api/nominas/views.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/api/seguridad/__init__.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/api/seguridad/permissions.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/app/master/utils/__init__.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/app/master/utils/enums.py" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/app/seguridad/views.py" afterPath="$PROJECT_DIR$/app/seguridad/views.py" />
-      <change beforePath="$PROJECT_DIR$/sigecoraf/settings/base.py" afterPath="$PROJECT_DIR$/sigecoraf/settings/base.py" />
-      <change beforePath="$PROJECT_DIR$/sigecoraf/urls.py" afterPath="$PROJECT_DIR$/sigecoraf/urls.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,6 +14,16 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="9" column="1" lean-forward="false" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="serializers.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/api/nominas/serializers.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -58,7 +58,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="enums.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="enums.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/master/utils/enums.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="380">
@@ -108,6 +108,7 @@
         <option value="$PROJECT_DIR$/api/nominas/views.py" />
         <option value="$PROJECT_DIR$/app/master/utils/enums.py" />
         <option value="$PROJECT_DIR$/app/seguridad/views.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -199,12 +200,6 @@
               <item name="sigecoraf" type="b2602c69:ProjectViewProjectNode" />
               <item name="sigecoraf" type="462c0819:PsiDirectoryNode" />
               <item name="sigecoraf" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sigecoraf" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sigecoraf" type="462c0819:PsiDirectoryNode" />
-              <item name="sigecoraf" type="462c0819:PsiDirectoryNode" />
-              <item name="settings" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -523,14 +518,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/nominas/apps.py" />
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sigecoraf/settings/development.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
@@ -675,6 +662,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="380">
           <caret line="19" column="27" lean-forward="false" selection-start-line="19" selection-start-column="27" selection-end-line="19" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="9" column="1" lean-forward="false" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
           <folding />
         </state>
       </provider>
