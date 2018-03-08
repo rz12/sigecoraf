@@ -7,7 +7,6 @@ class Usuario(User):
                                 on_delete=models.CASCADE)
 
 
-
 class Menu(models.Model):
     codigo = models.CharField(max_length=50, unique=True, blank=False,
                               null=False)
@@ -17,6 +16,11 @@ class Menu(models.Model):
     formulario = models.CharField(max_length=250, blank=True, null=True)
     empresa = models.ForeignKey('master.Empresa', related_name='menus',
                                 on_delete=models.CASCADE)
+    padre = models.ForeignKey('self', related_name='submenus', null=True,
+                              blank=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.codigo
 
 
 class MenuUsuario(models.Model):
