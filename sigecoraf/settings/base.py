@@ -25,6 +25,7 @@ SECRET_KEY = '7cv3f5n8av*vz^^&3$*+0yjx42p&ej_2c_pk_ic+sfz3he3@rh'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+DEFAULT_CHARSET = 'utf-8'
 
 # Application definition
 
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
     'app.master',
     'app.nominas',
     'app.seguridad',
@@ -50,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'sigecoraf.urls'
@@ -133,3 +137,4 @@ STATICFILES_DIRS = (
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, "locale")
 ]
+CORS_ORIGIN_ALLOW_ALL = True
