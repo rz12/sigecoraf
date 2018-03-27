@@ -1,14 +1,11 @@
 from django.conf.urls import url, include
 from django.contrib import admin
-from api.seguridad import views
 from rest_framework.routers import DefaultRouter
-from rest_framework.authtoken import views as views_token
-
+from api.master import views
 admin.autodiscover()
 router = DefaultRouter(trailing_slash=False)
 
-router.register(r'usuarios', views.UsuarioViewSet, base_name='usuarios')
+router.register(r'parametrizaciones', views.ParametrizacionViewSet, base_name='parametrizaciones')
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^api-token-auth/', views_token.obtain_auth_token),
 ]

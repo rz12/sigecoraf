@@ -1,24 +1,13 @@
-from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer
-from api.seguridad.permissions import IsAuthenticated
 from app.nominas.models import Empleado, RolPago
 
 
 class EmpleadoViewSet(viewsets.ViewSet):
-    '''
-
-    '''
 
     def retrieve(self, request, pk=None):
-        '''
-
-        :param request:
-        :param pk:
-        :return:
-        '''
         try:
             objeto = Empleado.objects.get(id=pk)
             empleado = EmpleadoSerializer(objeto).data
@@ -29,23 +18,12 @@ class EmpleadoViewSet(viewsets.ViewSet):
                              'message': None})
 
     def list(self, request):
-        '''
-
-        :param request:
-        :return:
-        '''
         queryset = Empleado.objects.all()
         serializer = EmpleadoSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
 
-    # @method_decorator(IsAuthenticated(None, 'add_empleado'))
     def create(self, request):
-        '''
-
-        :param request:
-        :return:
-        '''
         try:
             empleado = Empleado()
             serializer = EmpleadoSerializer(empleado, data=request.data)
@@ -125,4 +103,3 @@ class RolPagoViewSet(viewsets.ViewSet):
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
-
