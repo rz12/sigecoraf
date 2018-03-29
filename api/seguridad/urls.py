@@ -8,6 +8,7 @@ admin.autodiscover()
 router = DefaultRouter(trailing_slash=False)
 
 router.register(r'usuarios', views.UsuarioViewSet, base_name='usuarios')
+router.register(r'menus', views.MenusViewSet, base_name='menus')
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^api-token-auth/', views_token.obtain_auth_token),
