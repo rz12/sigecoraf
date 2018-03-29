@@ -1,11 +1,11 @@
 from rest_framework import status, viewsets
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
-from api.seguridad.serializers import UsuarioSerializer
+from api.seguridad.serializers import UsuarioSerializer, MenusSerializer
 from app.master.utils.enums import AuthEnum
-from app.seguridad.models import Usuario
-from rest_framework.authtoken.models import Token
+from app.seguridad.models import Usuario, Menu
 
 
 class UsuarioViewSet(viewsets.ViewSet):
@@ -37,7 +37,7 @@ class UsuarioViewSet(viewsets.ViewSet):
                 return Response({'status': status.HTTP_400_BAD_REQUEST,
                                  'message': 'Error de Autenticacion'},
                                 status=status.HTTP_400_BAD_REQUEST)
-            
+
             serialized = UsuarioSerializer(usuario)
             return Response(serialized.data)
 
@@ -46,3 +46,12 @@ class UsuarioViewSet(viewsets.ViewSet):
                 'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                 'message': e
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class MenusViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        queryset = Menu.objects.all()
+        serializer = MenusSerializer(queryset, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None})

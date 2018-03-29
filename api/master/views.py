@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from api.master.serializers import ParametrizacionSerializer
 from app.master.models import Parametrizacion
+from app.seguridad.models import Menu
 
 
 class ParametrizacionViewSet(viewsets.ViewSet):
@@ -13,3 +14,5 @@ class ParametrizacionViewSet(viewsets.ViewSet):
         serializer = ParametrizacionSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
+
+
