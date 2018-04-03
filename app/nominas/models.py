@@ -33,6 +33,10 @@ class Contrato(models.Model):
                                  blank=True)
     estado = models.BooleanField(default=True)
     mensualizar_decimos = models.NullBooleanField(default=True)
+    empleado = models.ForeignKey('nominas.Empleado', related_name='contratos',
+                                 on_delete=models.CASCADE)
+    cargo = models.ForeignKey('nominas.Cargo', related_name='contratos',
+                              on_delete=models.CASCADE)
 
 
 class EstructuraDetalleRolPago(models.Model):
@@ -61,6 +65,8 @@ class RolPago(models.Model):
     consolidado_rolpago = models.ForeignKey('nominas.ConsolidadoRolPago',
                                             related_name='roles_pago',
                                             on_delete=models.CASCADE)
+    contrato = models.ForeignKey('nominas.Contrato', related_name='roles_pago',
+                                 on_delete=models.CASCADE)
 
 
 class DetalleRolPago(models.Model):
