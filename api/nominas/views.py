@@ -119,7 +119,7 @@ class CargoViewSet(viewsets.ViewSet):
                              'message': None})
 
     def list(self, request):
-        queryset = Cargo.objects.all()
+        queryset = Cargo.objects.filter(estado=True).all()
         serializer = CargoSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
@@ -130,7 +130,28 @@ class CargoViewSet(viewsets.ViewSet):
             serializer = CargoSerializer(cargo, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                cargo_message = 'Empleado creado'
+                cargo_message = 'Cargo creado'
+                cargo_status = status.HTTP_200_OK
+            else:
+                cargo_message = serializer.errors
+                cargo_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': cargo_status,
+                             'message': cargo_message})
+
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    def update(self, request, pk=None):
+        try:
+            cargo = Cargo.objects.get(id=pk)
+            serializer = CargoSerializer(cargo, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                cargo_message = 'Cargo actualizado'
                 cargo_status = status.HTTP_200_OK
             else:
                 cargo_message = serializer.errors
@@ -184,3 +205,5 @@ class ContratoViewSet(viewsets.ViewSet):
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
+
+
