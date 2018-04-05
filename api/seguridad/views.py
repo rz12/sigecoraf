@@ -51,7 +51,7 @@ class UsuarioViewSet(viewsets.ViewSet):
 class MenusViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        queryset = Menu.objects.all()
+        queryset = Menu.objects.all().order_by('orden')
         serializer = MenusSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})

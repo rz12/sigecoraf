@@ -31,6 +31,8 @@ class Menu(models.Model):
                                 on_delete=models.CASCADE)
     padre = models.ForeignKey('self', related_name='submenus', null=True,
                               blank=True, on_delete=models.CASCADE)
+    orden = models.IntegerField(default=True, null=True, blank=True)
+    icono = models.CharField(max_length=250, blank=False, null=False)
 
     def __str__(self):
         return self.codigo
