@@ -28,10 +28,13 @@ class UsuarioViewSet(viewsets.ViewSet):
             usuarios = Usuario.objects.filter(id=token.user.id).all()
             usuario = None
             if usuarios.count() == 0:
-                usuario = Usuario(token.user.username, token.user.first_name,
-                                  token.user.last_name, token.user.email)
+                usuario = Usuario()
+                usuario.username = token.user.username
+                usuario.first_name = token.user.first_name
+                usuario.last_name = token.user.last_name
+                usuario.email = token.user.email
             else:
-                usuario = usuarios[-1]
+                usuario = usuarios[0]
 
             if usuario is None:
                 return Response({'status': status.HTTP_400_BAD_REQUEST,

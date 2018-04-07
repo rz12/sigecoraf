@@ -24,7 +24,7 @@ class Cargo(models.Model):
     sueldo = models.DecimalField(max_digits=12, decimal_places=2)
 
     def __str__(self):
-        self.nombre
+        return self.nombre
 
 
 class Contrato(models.Model):

@@ -8,16 +8,18 @@ class EmpleadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empleado
 
+
 class RolPagoSerializer(serializers.ModelSerializer):
     class Meta:
-        models = RolPago
+        model = RolPago
+
 
 class CargoSerializer(serializers.ModelSerializer):
     class Meta:
-        models = Cargo
+        model = Cargo
+        fields = '__all__'
+
 
 class ContratoSerializer(serializers.ModelSerializer):
     class Meta:
         models = Contrato
-
-
