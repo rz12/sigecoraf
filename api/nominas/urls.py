@@ -10,6 +10,8 @@ router = DefaultRouter(trailing_slash=False)
 router.register(r'empleados', views.EmpleadoViewSet, base_name='empleados')
 router.register(r'roles_pago', views.RolPagoViewSet, base_name='roles_pago')
 router.register(r'cargos', views.CargoViewSet, base_name='cargos')
+router.register(r'contratos', views.CargoViewSet, base_name='contratos')
+router.register(r'rolPago', views.CargoViewSet, base_name='rolPago')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
