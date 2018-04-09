@@ -24,17 +24,16 @@ def verificar_permisos_acceso(token, menu=None, permiso=None):
             return result
 
         user = t.user
-        if user is None or user.is_anonymous():
+        if user is None:
             result['isPermission'] = False
             result['message'] = MessageEnum.USER_NOT_AUTHORIZED.value
             return result
-
+        print(menu,'paso 3')
         if menu is not None:
             if verificar_menu_group(user, menu) is False:
                 result['isPermission'] = False
                 result['message'] = MessageEnum.USER_NOT_AUTHORIZED.value
                 return result
-
         if permiso is not None:
             if verificar_permission_group(user, permiso) is False:
                 result['isPermission'] = False

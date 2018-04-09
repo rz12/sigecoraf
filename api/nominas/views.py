@@ -1,8 +1,11 @@
+from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
     CargoSerializer, ContratoSerializer
+from api.seguridad.permissions import IsAuthenticated
+from app.master.utils.enums import AuthEnum
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 
 
@@ -118,6 +121,7 @@ class CargoViewSet(viewsets.ViewSet):
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
 
+    @method_decorator(IsAuthenticated('CARGOS', None))
     def list(self, request):
         queryset = Cargo.objects.filter(estado=True).all()
         serializer = CargoSerializer(queryset, many=True)
@@ -205,5 +209,3 @@ class ContratoViewSet(viewsets.ViewSet):
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
-
-

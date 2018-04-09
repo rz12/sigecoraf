@@ -3,6 +3,7 @@ import json
 from django.http.response import HttpResponse
 from rest_framework import status
 
+from app.master.utils.enums import AuthEnum
 from app.seguridad.views import verificar_permisos_acceso
 
 
@@ -29,9 +30,8 @@ class IsAuthenticated(object):
         """
 
         def wrapper(request, *args, **kwargs):
-            token = request.GET.get('token') if request.GET.get('token') else \
-                request.META['HTTP_AUTHORIZATION']
-            permission = verificar_permisos_acceso(token, self.funcionalidad,
+            token = request.META['HTTP_AUTHORIZATION']
+            permission = verificar_permisos_acceso(token, self.menu,
                                                    self.permiso)
             if (permission['isPermission'] is False):
                 return HttpResponse(
