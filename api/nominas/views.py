@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
     CargoSerializer, ContratoSerializer
 from api.seguridad.permissions import IsAuthenticated
-from app.master.utils.enums import AuthEnum
+from app.master.views import api_paginacion
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 
 
@@ -123,10 +123,15 @@ class CargoViewSet(viewsets.ViewSet):
 
     @method_decorator(IsAuthenticated('CARGOS', None))
     def list(self, request):
-        queryset = Cargo.objects.filter(estado=True).all()
-        serializer = CargoSerializer(queryset, many=True)
+        page = request.GET.get('PAGE')
+        items_per_page = request.GET.get('ITEMS_PER_PAGE')
+        queryset = Cargo.objects.all()
+        queryset_pagination = api_paginacion(queryset, int(page), items_per_page)
+
+        serializer = CargoSerializer(queryset_pagination, many=True)
+        print(serializer.data,'aqui')
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None})
+                         'count': queryset.count(), 'message': None})
 
     def create(self, request):
         try:
@@ -134,7 +139,7 @@ class CargoViewSet(viewsets.ViewSet):
             serializer = CargoSerializer(cargo, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                cargo_message = 'Cargo creado'
+                cargo_message = 'Cargo creado satisfactoriamente.'
                 cargo_status = status.HTTP_200_OK
             else:
                 cargo_message = serializer.errors
@@ -155,7 +160,7 @@ class CargoViewSet(viewsets.ViewSet):
             serializer = CargoSerializer(cargo, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                cargo_message = 'Cargo actualizado'
+                cargo_message = 'Cargo actualizado Satisfactoriamente.'
                 cargo_status = status.HTTP_200_OK
             else:
                 cargo_message = serializer.errors
