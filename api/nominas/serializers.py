@@ -12,7 +12,7 @@ class EmpleadoSerializer(serializers.ModelSerializer):
 class RolPagoSerializer(serializers.ModelSerializer):
     class Meta:
         model = RolPago
-
+        fields = '__all__'
 
 class CargoSerializer(serializers.ModelSerializer):
     class Meta:

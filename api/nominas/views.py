@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
     CargoSerializer, ContratoSerializer
 from api.seguridad.permissions import IsAuthenticated
-from app.master.utils.enums import AuthEnum
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 
 
@@ -50,58 +49,122 @@ class EmpleadoViewSet(viewsets.ViewSet):
 
 
 class RolPagoViewSet(viewsets.ViewSet):
-    '''
-
-    '''
 
     def retrieve(self, request, pk=None):
-        '''
-
-        :param request:
-        :param pk:
-        :return:
-        '''
         try:
             objeto = RolPago.objects.get(id=pk)
-            empleado = RolPagoSerializer(objeto).data
-            return Response({'data': rolpago, 'status': status.HTTP_200_OK,
+            rolPago = RolPagoSerializer(objeto).data
+            return Response({'data': rolPago, 'status': status.HTTP_200_OK,
                              'message': None})
         except RolPago.DoesNotExist:
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
 
+    ##@method_decorator(IsAuthenticated('ROLPAGO', None))
     def list(self, request):
-        '''
-
-        :param request:
-        :return:
-        '''
-        queryset = RolPago.objects.all()
+        queryset.all()
         serializer = RolPagoSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
 
-    # @method_decorator(IsAuthenticated(None, 'add_rolpago'))
     def create(self, request):
-        '''
-
-        :param request:
-        :return:
-        '''
         try:
-            rolpago = RolPago()
-            serializer = RolPagoSerializer(rolpago, data=request.data)
+            rolPago = RolPago()
+            serializer = RolPagoSerializer(rolPago, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                rolpago_message = 'Rol de Pago creado'
-                rolpago_status = status.HTTP_200_OK
+                rolPago_message = 'Cargo creado'
+                rolPago_status = status.HTTP_200_OK
             else:
-                rolpago_message = serializer.errors
-                rolpago_status = status.HTTP_400_BAD_REQUEST
+                rolPago_message = serializer.errors
+                rolPago_status = status.HTTP_400_BAD_REQUEST
 
             return Response({'data': serializer.data,
-                             'status': rolpago_status,
-                             'message': rolpago_message})
+                             'status': rolPago_status,
+                             'message': rolPago_message})
+
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    def update(self, request, pk=None):
+        try:
+            rolPago = RolPago.objects.get(id=pk)
+            serializer = RolPagoSerializer(rolPago, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                rolPago_message = 'RolPago actualizado'
+                rolPago_status = status.HTTP_200_OK
+            else:
+                rolPago_message = serializer.errors
+                rolPago_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': rolPago_status,
+                             'message': rolPago_message})
+
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+
+class ContratoViewSet(viewsets.ViewSet):
+
+    def retrieve(self, request, pk=None):
+        try:
+            objeto = Contrato.objects.get(id=pk)
+            cargo = ContratoSerializer(objeto).data
+            return Response({'data': cargo, 'status': status.HTTP_200_OK,
+                             'message': None})
+        except Contrato.DoesNotExist:
+            return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
+                             'message': None})
+
+    @method_decorator(IsAuthenticated('CONTRATOS', None))
+    def list(self, request):
+        queryset = Contrato.objects.filter(estado=True).all()
+        serializer = Contrato(queryset, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None})
+
+    def create(self, request):
+        try:
+            contrato = Contrato()
+            serializer = ContratoSerializer(contrato, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                contrato_message = 'Cargo creado'
+                contrato_status = status.HTTP_200_OK
+            else:
+                contrato_message = serializer.errors
+                contrato_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': contrato_status,
+                             'message': contrato_message})
+
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    def update(self, request, pk=None):
+        try:
+            contrato = Contrato.objects.get(id=pk)
+            serializer = ContratoSerializer(contrato, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                contrato_message = 'Contrato actualizado'
+                contrato_status = status.HTTP_200_OK
+            else:
+                contrato_message = serializer.errors
+                contrato_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': contrato_status,
+                             'message': contrato_message})
 
         except Exception as e:
             return Response({'data': None,
@@ -164,46 +227,6 @@ class CargoViewSet(viewsets.ViewSet):
             return Response({'data': serializer.data,
                              'status': cargo_status,
                              'message': cargo_message})
-
-        except Exception as e:
-            return Response({'data': None,
-                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
-                             'message': e})
-
-
-class ContratoViewSet(viewsets.ViewSet):
-
-    def retrieve(self, request, pk=None):
-        try:
-            objeto = Contrato.objects.get(id=pk)
-            contrato = CargoSerializer(objeto).data
-            return Response({'data': contrato, 'status': status.HTTP_200_OK,
-                             'message': None})
-        except Contrato.DoesNotExist:
-            return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
-                             'message': None})
-
-    def list(self, request):
-        queryset = Contrato.objects.all()
-        serializer = CargoSerializer(queryset, many=True)
-        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None})
-
-    def create(self, request):
-        try:
-            contratos = Contrato()
-            serializer = ContratoSerializer(contratos, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                contratos_message = 'Empleado creado'
-                contratos_status = status.HTTP_200_OK
-            else:
-                contratos_message = serializer.errors
-                contratos_status = status.HTTP_400_BAD_REQUEST
-
-            return Response({'data': serializer.data,
-                             'status': contratos_status,
-                             'message': contratos_message})
 
         except Exception as e:
             return Response({'data': None,
