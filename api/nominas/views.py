@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
     CargoSerializer, ContratoSerializer
 from api.seguridad.permissions import IsAuthenticated
+from app.master.views import api_paginacion
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 
 
@@ -124,52 +125,80 @@ class ContratoViewSet(viewsets.ViewSet):
 
     @method_decorator(IsAuthenticated('CONTRATOS', None))
     def list(self, request):
-        queryset = Contrato.objects.filter(estado=True).all()
-        serializer = Contrato(queryset, many=True)
-        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None})
 
-    def create(self, request):
-        try:
-            contrato = Contrato()
-            serializer = ContratoSerializer(contrato, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                contrato_message = 'Cargo creado'
-                contrato_status = status.HTTP_200_OK
-            else:
-                contrato_message = serializer.errors
-                contrato_status = status.HTTP_400_BAD_REQUEST
+<< << << < HEAD
+queryset = Contrato.objects.filter(estado=True).all()
+serializer = Contrato(queryset, many=True)
+== == == =
+page = request.GET.get('PAGE')
+items_per_page = request.GET.get('ITEMS_PER_PAGE')
+queryset = Cargo.objects.all()
+queryset_pagination = api_paginacion(queryset, int(page), items_per_page)
 
-            return Response({'data': serializer.data,
-                             'status': contrato_status,
-                             'message': contrato_message})
+serializer = CargoSerializer(queryset_pagination, many=True)
+print(serializer.data, 'aqui')
+>> >> >> > 95753e0
+f9f58832c539a263e5a4c64c59aa89df8
+return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                 'count': queryset.count(), 'message': None})
 
-        except Exception as e:
-            return Response({'data': None,
-                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
-                             'message': e})
 
-    def update(self, request, pk=None):
-        try:
-            contrato = Contrato.objects.get(id=pk)
-            serializer = ContratoSerializer(contrato, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                contrato_message = 'Contrato actualizado'
-                contrato_status = status.HTTP_200_OK
-            else:
-                contrato_message = serializer.errors
-                contrato_status = status.HTTP_400_BAD_REQUEST
+def create(self, request):
+    try:
+        contrato = Contrato()
+        serializer = ContratoSerializer(contrato, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
 
-            return Response({'data': serializer.data,
-                             'status': contrato_status,
-                             'message': contrato_message})
+<< << << < HEAD
+contrato_message = 'Cargo creado'
+contrato_status = status.HTTP_200_OK
+== == == =
+cargo_message = 'Cargo creado satisfactoriamente.'
+cargo_status = status.HTTP_200_OK
+>> >> >> > 95753e0
+f9f58832c539a263e5a4c64c59aa89df8
+else:
+contrato_message = serializer.errors
+contrato_status = status.HTTP_400_BAD_REQUEST
 
-        except Exception as e:
-            return Response({'data': None,
-                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
-                             'message': e})
+return Response({'data': serializer.data,
+                 'status': contrato_status,
+                 'message': contrato_message})
+
+except Exception as e:
+return Response({'data': None,
+                 'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                 'message': e})
+
+
+def update(self, request, pk=None):
+    try:
+        contrato = Contrato.objects.get(id=pk)
+        serializer = ContratoSerializer(contrato, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+
+<< << << < HEAD
+contrato_message = 'Contrato actualizado'
+contrato_status = status.HTTP_200_OK
+== == == =
+cargo_message = 'Cargo actualizado Satisfactoriamente.'
+cargo_status = status.HTTP_200_OK
+>> >> >> > 95753e0
+f9f58832c539a263e5a4c64c59aa89df8
+else:
+contrato_message = serializer.errors
+contrato_status = status.HTTP_400_BAD_REQUEST
+
+return Response({'data': serializer.data,
+                 'status': contrato_status,
+                 'message': contrato_message})
+
+except Exception as e:
+return Response({'data': None,
+                 'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                 'message': e})
 
 
 class CargoViewSet(viewsets.ViewSet):
