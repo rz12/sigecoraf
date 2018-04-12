@@ -14,14 +14,6 @@ class IsAuthenticated(object):
     menu.
     '''
 
-    def __init__(self, menu=None, permiso=None):
-        """
-        Funcion de inicio.
-        :param funcionalidad: nombre de la funcionalidad:
-        """
-        self.menu = menu
-        self.permiso = permiso
-
     def __call__(self, funcion):
         """
         Funcion que valida la permisos
@@ -31,13 +23,17 @@ class IsAuthenticated(object):
 
         def wrapper(request, *args, **kwargs):
             token = request.META['HTTP_AUTHORIZATION']
-            permission = verificar_permisos_acceso(token, self.menu,
-                                                   self.permiso)
+            menu = None
+            if 'MENU' in request.GET:
+                menu = request.GET['MENU']
+            permission = verificar_permisos_acceso(token, menu,
+                                                   None)
             if (permission['isPermission'] is False):
                 return HttpResponse(
                     json.dumps({'status': status.HTTP_401_UNAUTHORIZED,
                                 'message': permission['message']}),
                     content_type='application/json')
+
             return funcion(request, *args, **kwargs)
 
         return wrapper
