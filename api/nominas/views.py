@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
 from rest_framework.response import Response
@@ -124,14 +125,19 @@ class CargoViewSet(viewsets.ViewSet):
     @method_decorator(IsAuthenticated('CARGOS', None))
     def list(self, request):
         page = request.GET.get('PAGE')
-        items_per_page = request.GET.get('ITEMS_PER_PAGE')
+        items_per_page = request.GET.get('PAGE_SIZE')
+        filter = request.GET.get('FILTER')
         queryset = Cargo.objects.all()
-        queryset_pagination = api_paginacion(queryset, int(page), items_per_page)
+        count=queryset.count();
+        if filter is not None:
+            queryset = queryset.filter(
+                Q(nombre__icontains=filter) | Q(descripcion__icontains=filter))
+        queryset_pagination = api_paginacion(queryset, int(page),
+                                             items_per_page)
 
         serializer = CargoSerializer(queryset_pagination, many=True)
-        print(serializer.data,'aqui')
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'count': queryset.count(), 'message': None})
+                         'count':count, 'message': None})
 
     def create(self, request):
         try:
