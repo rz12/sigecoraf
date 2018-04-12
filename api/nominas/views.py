@@ -122,7 +122,7 @@ class CargoViewSet(viewsets.ViewSet):
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
 
-    @method_decorator(IsAuthenticated('CARGOS', None))
+    @method_decorator(IsAuthenticated())
     def list(self, request):
         page = request.GET.get('PAGE')
         items_per_page = request.GET.get('PAGE_SIZE')

@@ -1,9 +1,11 @@
+from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
-from api.seguridad.serializers import UsuarioSerializer, MenusSerializer
+from api.seguridad.permissions import IsAuthenticated
+from api.seguridad.serializers import UsuarioSerializer, MenuSerializer
 from app.master.utils.enums import AuthEnum
 from app.seguridad.models import Usuario, Menu
 
@@ -54,7 +56,15 @@ class UsuarioViewSet(viewsets.ViewSet):
 class MenusViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        queryset = Menu.objects.all().order_by('orden')
-        serializer = MenusSerializer(queryset, many=True)
+        queryset = Menu.objects.filter(estado=True,
+                                       padre=None).all().order_by('orden')
+        serializer = MenuSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None})
+
+    @list_route()
+    @method_decorator(IsAuthenticated())
+    def has_permission(self,request):
+        print('vamo bien')
+        return Response({'data': True, 'status': status.HTTP_200_OK,
                          'message': None})

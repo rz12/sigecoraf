@@ -28,7 +28,7 @@ class EmpresaViewSet(viewsets.ViewSet):
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
 
-    @method_decorator(IsAuthenticated(None, None))
+    @method_decorator(IsAuthenticated())
     def list(self, request):
         queryset = Empresa.objects.filter(estado=True).all()
         serializer = EmpresaSerializer(queryset, many=True)
