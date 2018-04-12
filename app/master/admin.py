@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
-from app.master.models import Empresa
+from app.master.models import Empresa, Item, Catalogo
 
 
 class EmpresaAdmin(admin.ModelAdmin):
@@ -11,4 +10,18 @@ class EmpresaAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 
+class ItemInline(admin.TabularInline):
+    model = Item
+    extra = 1
+
+
+class CatalogoAdmin(admin.ModelAdmin):
+    search_fields = ('codigo',)
+    list_display = ('codigo', 'nombre',)
+    list_display_links = ('codigo',)
+    inlines = [ItemInline]
+    list_per_page = 25
+
+
 admin.site.register(Empresa, EmpresaAdmin)
+admin.site.register(Catalogo, CatalogoAdmin)

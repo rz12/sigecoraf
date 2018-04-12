@@ -2,9 +2,10 @@ from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from api.master.serializers import ParametrizacionSerializer, EmpresaSerializer
+from api.master.serializers import ParametrizacionSerializer, EmpresaSerializer, \
+    CatalogoSerializer
 from api.seguridad.permissions import IsAuthenticated
-from app.master.models import Parametrizacion, Empresa
+from app.master.models import Parametrizacion, Empresa, Catalogo
 
 
 class ParametrizacionViewSet(viewsets.ViewSet):
@@ -15,6 +16,13 @@ class ParametrizacionViewSet(viewsets.ViewSet):
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
 
+class CatalogoViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        queryset = Catalogo.objects.all()
+        serializer = CatalogoSerializer(queryset, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None})
 
 class EmpresaViewSet(viewsets.ViewSet):
 
