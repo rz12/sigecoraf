@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from app.master import models
-from app.master.models import Parametrizacion, DetalleParametrizacion, Empresa
+from app.master.models import Parametrizacion, DetalleParametrizacion, Empresa, \
+    Item, Catalogo
 
 
 class DetalleParametrizacionSerializer(serializers.ModelSerializer):
@@ -17,8 +17,22 @@ class ParametrizacionSerializer(serializers.ModelSerializer):
         model = Parametrizacion
         fields = ('id', 'codigo', 'nombre', 'descripcion', 'detalles')
 
-class EmpresaSerializer(serializers.ModelSerializer):
 
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = '__all__'
+
+
+class CatalogoSerializer(serializers.ModelSerializer):
+    items = ItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Catalogo
+        fields = ('id', 'codigo', 'nombre', 'descripcion', 'items')
+
+
+class EmpresaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empresa
         fields = '__all__'
