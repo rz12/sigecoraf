@@ -7,6 +7,7 @@ from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 class EmpleadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empleado
+        fields = '__all__'
 
 
 class RolPagoSerializer(serializers.ModelSerializer):

@@ -1,5 +1,6 @@
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from api.master.serializers import ParametrizacionSerializer, EmpresaSerializer, \
@@ -16,6 +17,7 @@ class ParametrizacionViewSet(viewsets.ViewSet):
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
 
+
 class CatalogoViewSet(viewsets.ViewSet):
 
     def list(self, request):
@@ -23,6 +25,18 @@ class CatalogoViewSet(viewsets.ViewSet):
         serializer = CatalogoSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
+
+    @list_route()
+    def list_by_codigo(self, request):
+        queryset = Catalogo.objects.all().order_by('nombre')
+        codigo = None
+        if 'CODIGO' in request.GET:
+            codigo = request.GET['CODIGO']
+            queryset = queryset.filter(codigo=codigo)
+        serializer = CatalogoSerializer(queryset, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None})
+
 
 class EmpresaViewSet(viewsets.ViewSet):
 

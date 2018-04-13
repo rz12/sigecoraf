@@ -21,7 +21,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
         except Empleado.DoesNotExist:
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
-
+    @method_decorator(IsAuthenticated())
     def list(self, request):
         queryset = Empleado.objects.all()
         serializer = EmpleadoSerializer(queryset, many=True)
@@ -34,7 +34,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
             serializer = EmpleadoSerializer(empleado, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                empleado_message = 'Empleado creado'
+                empleado_message = 'Empleado Creado Satisfactoriamente.'
                 empleado_status = status.HTTP_200_OK
             else:
                 empleado_message = serializer.errors
@@ -45,6 +45,29 @@ class EmpleadoViewSet(viewsets.ViewSet):
                              'message': empleado_message})
 
         except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+    def update(self, request, pk=None):
+        try:
+            empleado = Empleado.objects.get(id=pk)
+            serializer = EmpleadoSerializer(empleado, data=request.data)
+            print('paso 1')
+            if serializer.is_valid():
+                serializer.save()
+                empleado_message = 'Empleado Actualizado Satisfactoriamente.'
+                empleado_status = status.HTTP_200_OK
+            else:
+                print('paso 2',serializer.errors)
+                empleado_message = serializer.errors
+                empleado_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': empleado_status,
+                             'message': empleado_message})
+
+        except Exception as e:
+            print('paso 3')
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
