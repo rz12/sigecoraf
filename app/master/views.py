@@ -15,3 +15,7 @@ def api_paginacion(queryset, page=None, numero_items_por_pagina=None):
     except Exception as e:
         print(e)
     return queryset
+def format_timezone_to_date(fecha):
+    if fecha is not None:
+        index=fecha.find("T")
+        return fecha[:index] if index>-1 else fecha

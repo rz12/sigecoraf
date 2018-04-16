@@ -6,10 +6,8 @@ from app.master.models import Persona
 
 class Empleado(Persona):
     fecha_inicio = models.DateField(default=datetime.date.today)
-    fecha_fin = models.DateField(default=datetime.date.today, null=True,
-                                 blank=True)
-    fecha_ingreso_iess = models.DateField(default=datetime.date.today,
-                                          null=True, blank=True)
+    fecha_fin = models.DateField(null=True, blank=True)
+    fecha_ingreso_iess = models.DateField(null=True, blank=True)
     estado = models.BooleanField(default=True)
     empresa = models.ForeignKey('master.Empresa', related_name='empleados',
                                 on_delete=models.CASCADE)

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from api.master.serializers import DireccionSerializer
 from app.nominas import models
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 
