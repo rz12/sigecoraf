@@ -1,6 +1,7 @@
 from pip._vendor.urllib3 import fields
 from rest_framework import serializers
 
+from api.master.serializers import DireccionSerializer
 from app.nominas import models
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 
@@ -8,6 +9,7 @@ from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 class EmpleadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empleado
+        fields = '__all__'
 
 
 class RolPagoSerializer(serializers.ModelSerializer):

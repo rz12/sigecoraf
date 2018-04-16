@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
     CargoSerializer, ContratoSerializer
 from api.seguridad.permissions import IsAuthenticated
-from app.master.views import api_paginacion
+from app.master.views import *
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato
 
 
@@ -22,6 +22,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
 
+    @method_decorator(IsAuthenticated())
     def list(self, request):
         queryset = Empleado.objects.all()
         serializer = EmpleadoSerializer(queryset, many=True)
@@ -31,10 +32,58 @@ class EmpleadoViewSet(viewsets.ViewSet):
     def create(self, request):
         try:
             empleado = Empleado()
+
+            request.data['fecha_inicio'] = format_timezone_to_date(
+                request.data['fecha_inicio'])
+            request.data['fecha_nacimiento'] = format_timezone_to_date(
+                request.data['fecha_nacimiento'])
+            if "fecha_fin" in request.data:
+                request.data['fecha_fin']= format_timezone_to_date(
+                request.data['fecha_fin'])
+
+            if "fecha_ingreso_iess" in request.data:
+                request.data['fecha_ingreso_iess']= format_timezone_to_date(
+                request.data['fecha_ingreso_iess'])
+
+            serializer = EmpleadoSerializer(empleado, data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                empleado_message = 'Empleado Creado Satisfactoriamente.'
+                empleado_status = status.HTTP_200_OK
+            else:
+                empleado_message = serializer.errors
+                empleado_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': empleado_status,
+                             'message': empleado_message})
+
+        except Exception as e:
+            print(e)
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    def update(self, request, pk=None):
+        try:
+            empleado = Empleado.objects.get(id=pk)
+            request.data['fecha_inicio'] = format_timezone_to_date(
+                request.data['fecha_inicio'])
+
+            request.data['fecha_nacimiento'] = format_timezone_to_date(
+                request.data['fecha_nacimiento'])
+            if "fecha_fin" in request.data:
+                request.data['fecha_fin']= format_timezone_to_date(
+                request.data['fecha_fin'])
+
+            if "fecha_ingreso_iess" in request.data:
+                request.data['fecha_ingreso_iess']= format_timezone_to_date(
+                request.data['fecha_ingreso_iess'])
             serializer = EmpleadoSerializer(empleado, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                empleado_message = 'Empleado creado'
+                empleado_message = 'Empleado Actualizado Satisfactoriamente.'
                 empleado_status = status.HTTP_200_OK
             else:
                 empleado_message = serializer.errors
@@ -193,7 +242,7 @@ class CargoViewSet(viewsets.ViewSet):
         items_per_page = request.GET.get('PAGE_SIZE')
         filter = request.GET.get('FILTER')
         queryset = Cargo.objects.all()
-        count=queryset.count();
+        count = queryset.count();
         if filter is not None:
             queryset = queryset.filter(
                 Q(nombre__icontains=filter) | Q(descripcion__icontains=filter))
@@ -203,7 +252,7 @@ class CargoViewSet(viewsets.ViewSet):
         serializer = CargoSerializer(queryset_pagination, many=True)
         print(serializer.data, 'aqui')
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'count':count, 'message': None})
+                         'count': count, 'message': None})
 
     def create(self, request):
         try:

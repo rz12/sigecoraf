@@ -31,7 +31,7 @@ class Direccion(models.Model):
     """
     calle_principal = models.TextField(max_length=500, blank=False, null=False)
     calle_secundaria = models.TextField(max_length=500, blank=True, null=True)
-    pais = models.ForeignKey('master.Item', on_delete=models.CASCADE)
+    pais = models.ForeignKey('master.Item',related_name='paises', on_delete=models.CASCADE)
     ciudad = models.CharField(max_length=250, blank=False, null=False)
     referencia = models.TextField(max_length=500, blank=True, null=True)
     tipo_direccion = models.ForeignKey('master.Item',
@@ -60,7 +60,7 @@ class Catalogo(models.Model):
     descripcion = models.TextField(max_length=500, null=True, blank=True)
     estado = models.BooleanField(default=True)
     empresa = models.ForeignKey('master.Empresa', related_name='catalogos',
-                                on_delete=models.CASCADE)
+                                on_delete=models.CASCADE,null=True,blank=True)
 
 
 class Item(models.Model):
