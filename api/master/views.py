@@ -43,7 +43,6 @@ class ItemViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         try:
             objeto = Item.objects.get(id=pk)
-            print(objeto)
             item = ItemSerializer(objeto).data
             return Response({'data': item, 'status': status.HTTP_200_OK,
                              'message': None})
@@ -190,7 +189,7 @@ class DireccionViewSet(viewsets.ViewSet):
                                  direccion.calle_principal.upper())
                              })
         except ProtectedError:
-            msg = "La Dirección {0} , no puede eliminarce".format(direccion.id)
+            msg = "La Dirección {0} , no puede eliminarse".format(direccion.id)
             return HttpResponse(json.dumps({'data': pk,
                                             'status': status.HTTP_400_BAD_REQUEST,
                                             'message': msg}),
