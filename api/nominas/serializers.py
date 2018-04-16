@@ -1,3 +1,4 @@
+from pip._vendor.urllib3 import fields
 from rest_framework import serializers
 
 from app.nominas import models
@@ -23,3 +24,4 @@ class CargoSerializer(serializers.ModelSerializer):
 class ContratoSerializer(serializers.ModelSerializer):
     class Meta:
         models = Contrato
+        fields = '_all_'

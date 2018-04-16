@@ -117,8 +117,8 @@ class ContratoViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         try:
             objeto = Contrato.objects.get(id=pk)
-            cargo = ContratoSerializer(objeto).data
-            return Response({'data': cargo, 'status': status.HTTP_200_OK,
+            contrato = ContratoSerializer(objeto).data
+            return Response({'data': contrato, 'status': status.HTTP_200_OK,
                              'message': None})
         except Contrato.DoesNotExist:
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
@@ -128,7 +128,7 @@ class ContratoViewSet(viewsets.ViewSet):
     def list(self, request):
 
         queryset = Contrato.objects.filter(estado=True).all()
-        serializer = Contrato(queryset, many=True)
+        serializer = ContratoSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'count': queryset.count(), 'message': None})
 
@@ -138,7 +138,7 @@ class ContratoViewSet(viewsets.ViewSet):
             serializer = ContratoSerializer(contrato, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                contrato_message = 'Cargo creado'
+                contrato_message = 'Contrato creado'
                 contrato_status = status.HTTP_200_OK
             else:
                 contrato_message = serializer.errors
