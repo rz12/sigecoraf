@@ -38,7 +38,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
                                              items_per_page)
         serializer = EmpleadoSerializer(queryset_pagination, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None})
+                         'message': None, 'count': count})
 
     def create(self, request):
         try:
@@ -187,7 +187,7 @@ class CargoViewSet(viewsets.ViewSet):
         page = request.GET.get('PAGE')
         items_per_page = request.GET.get('PAGE_SIZE')
         filter = request.GET.get('FILTER')
-        queryset = Cargo.objects.all()
+        queryset = Cargo.objects.all().order_by('nombre')
         count = queryset.count();
         if filter is not None:
             queryset = queryset.filter(
@@ -247,7 +247,7 @@ class ContratoViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         try:
             objeto = Contrato.objects.get(id=pk)
-            contrato = CargoSerializer(objeto).data
+            contrato = ContratoSerializer(objeto).data
             return Response({'data': contrato, 'status': status.HTTP_200_OK,
                              'message': None})
         except Contrato.DoesNotExist:
@@ -255,28 +255,87 @@ class ContratoViewSet(viewsets.ViewSet):
                              'message': None})
 
     def list(self, request):
-        queryset = Contrato.objects.all()
-        serializer = CargoSerializer(queryset, many=True)
+
+        page = request.GET.get('PAGE')
+        items_per_page = request.GET.get('PAGE_SIZE')
+        filter = request.GET.get('FILTER')
+        queryset = Contrato.objects.all().order_by('fecha_inicio',
+                                                   'empleado__primer_apellido')
+        count = queryset.count();
+        if filter is not None:
+            queryset = queryset.filter(
+                Q(empleado__primer_nombre__icontains=filter) | Q(
+                    empleado__primer_apellido__icontains=filter) | Q(
+                    empleado__numero_identificacion__icontains=filter))
+        queryset_pagination = api_paginacion(queryset, int(page),
+                                             items_per_page)
+        serializer = ContratoSerializer(queryset_pagination, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None})
+                         'message': None, 'count': count})
 
     def create(self, request):
         try:
-            contratos = Contrato()
-            serializer = ContratoSerializer(contratos, data=request.data)
+            contrato = Contrato()
+            request.data['fecha_inicio'] = format_timezone_to_date(
+                request.data['fecha_inicio'])
+            if "fecha_fin" in request.data:
+                request.data['fecha_fin'] = format_timezone_to_date(
+                    request.data['fecha_fin'])
+            serializer = ContratoSerializer(contrato, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                contratos_message = 'Empleado creado'
-                contratos_status = status.HTTP_200_OK
+                contrato_message = 'Contrato creado satisfactoriamente'
+                contrato_status = status.HTTP_200_OK
             else:
-                contratos_message = serializer.errors
-                contratos_status = status.HTTP_400_BAD_REQUEST
+                contrato_message = serializer.errors
+                contrato_status = status.HTTP_400_BAD_REQUEST
+            return Response({'data': serializer.data,
+                             'status': contrato_status,
+                             'message': contrato_message})
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    def update(self, request, pk=None):
+        try:
+            contrato = Contrato.objects.get(id=pk)
+            request.data['fecha_inicio'] = format_timezone_to_date(
+                request.data['fecha_inicio'])
+
+            if "fecha_fin" in request.data:
+                request.data['fecha_fin'] = format_timezone_to_date(
+                    request.data['fecha_fin'])
+            serializer = ContratoSerializer(contrato, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                contrato_message = 'Contrato Actualizado Satisfactoriamente.'
+                contrato_status = status.HTTP_200_OK
+            else:
+                contrato_message = serializer.errors
+                contrato_status = status.HTTP_400_BAD_REQUEST
 
             return Response({'data': serializer.data,
-                             'status': contratos_status,
-                             'message': contratos_message})
+                             'status': contrato_status,
+                             'message': contrato_message})
 
         except Exception as e:
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
+
+    def destroy(self, request, pk=None):
+        contrato = Contrato.objects.get(id=pk)
+        try:
+            contrato.delete()
+            return Response({'data': pk,
+                             'status': status.HTTP_200_OK,
+                             'message': "El contrato {0} fue eliminado".format(
+                                 contrato.empleado.numero_identificacion)
+                             })
+        except ProtectedError:
+            msg = "El Contrato {0} , no puede eliminarse".format(contrato.id)
+            return HttpResponse(json.dumps({'data': pk,
+                                            'status': status.HTTP_400_BAD_REQUEST,
+                                            'message': msg}),
+                                content_type='application/json')

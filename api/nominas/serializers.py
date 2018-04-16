@@ -24,4 +24,5 @@ class CargoSerializer(serializers.ModelSerializer):
 
 class ContratoSerializer(serializers.ModelSerializer):
     class Meta:
-        models = Contrato
+        model = Contrato
+        fields = '__all__'

@@ -48,7 +48,7 @@ class EstructuraDetalleRolPago(models.Model):
     operacion = models.IntegerField(null=False, blank=False)
 
     def __str__(self):
-        self.nombre
+        return  self.nombre
 
 
 class ConsolidadoRolPago(models.Model):
