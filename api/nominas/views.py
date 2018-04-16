@@ -24,8 +24,19 @@ class EmpleadoViewSet(viewsets.ViewSet):
 
     @method_decorator(IsAuthenticated())
     def list(self, request):
+        page = request.GET.get('PAGE')
+        items_per_page = request.GET.get('PAGE_SIZE')
+        filter = request.GET.get('FILTER')
         queryset = Empleado.objects.all()
-        serializer = EmpleadoSerializer(queryset, many=True)
+        count = queryset.count();
+        if filter is not None:
+            queryset = queryset.filter(
+                Q(primer_nombre__icontains=filter) | Q(
+                    primer_apellido__icontains=filter) | Q(
+                    numero_identificacion__icontains=filter))
+        queryset_pagination = api_paginacion(queryset, int(page),
+                                             items_per_page)
+        serializer = EmpleadoSerializer(queryset_pagination, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
 
@@ -38,12 +49,12 @@ class EmpleadoViewSet(viewsets.ViewSet):
             request.data['fecha_nacimiento'] = format_timezone_to_date(
                 request.data['fecha_nacimiento'])
             if "fecha_fin" in request.data:
-                request.data['fecha_fin']= format_timezone_to_date(
-                request.data['fecha_fin'])
+                request.data['fecha_fin'] = format_timezone_to_date(
+                    request.data['fecha_fin'])
 
             if "fecha_ingreso_iess" in request.data:
-                request.data['fecha_ingreso_iess']= format_timezone_to_date(
-                request.data['fecha_ingreso_iess'])
+                request.data['fecha_ingreso_iess'] = format_timezone_to_date(
+                    request.data['fecha_ingreso_iess'])
 
             serializer = EmpleadoSerializer(empleado, data=request.data)
 
@@ -74,12 +85,12 @@ class EmpleadoViewSet(viewsets.ViewSet):
             request.data['fecha_nacimiento'] = format_timezone_to_date(
                 request.data['fecha_nacimiento'])
             if "fecha_fin" in request.data:
-                request.data['fecha_fin']= format_timezone_to_date(
-                request.data['fecha_fin'])
+                request.data['fecha_fin'] = format_timezone_to_date(
+                    request.data['fecha_fin'])
 
             if "fecha_ingreso_iess" in request.data:
-                request.data['fecha_ingreso_iess']= format_timezone_to_date(
-                request.data['fecha_ingreso_iess'])
+                request.data['fecha_ingreso_iess'] = format_timezone_to_date(
+                    request.data['fecha_ingreso_iess'])
             serializer = EmpleadoSerializer(empleado, data=request.data)
             if serializer.is_valid():
                 serializer.save()

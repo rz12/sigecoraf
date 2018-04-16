@@ -1,5 +1,6 @@
-from django.db import models
 import datetime
+
+from django.db import models
 
 from app.master.models import Persona
 
@@ -27,7 +28,7 @@ class Cargo(models.Model):
 
 class Contrato(models.Model):
     fecha_inicio = models.DateField(default=datetime.date.today)
-    fecha_fin = models.DateField(default=datetime.date.today, null=True,
+    fecha_fin = models.DateField(null=True,
                                  blank=True)
     estado = models.BooleanField(default=True)
     mensualizar_decimos = models.NullBooleanField(default=True)
