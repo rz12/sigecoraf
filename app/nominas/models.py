@@ -46,6 +46,7 @@ class EstructuraDetalleRolPago(models.Model):
                                 related_name='estructuras_detalles_rolpago',
                                 on_delete=models.CASCADE)
     operacion = models.IntegerField(null=False, blank=False)
+    regla=models.TextField(null=False, blank=False)
 
     def __str__(self):
         return  self.nombre
@@ -77,3 +78,4 @@ class DetalleRolPago(models.Model):
     rol_pago = models.ForeignKey('nominas.RolPago', related_name='detalles',
                                  on_delete=models.CASCADE)
     valor = models.DecimalField(max_digits=12, decimal_places=2)
+    cantidad = models.TextField(null=True, blank=True)
