@@ -91,6 +91,18 @@ class EmpleadoViewSet(viewsets.ViewSet):
             if "fecha_ingreso_iess" in request.data:
                 request.data['fecha_ingreso_iess'] = format_timezone_to_date(
                     request.data['fecha_ingreso_iess'])
+
+            print(request.data)
+            if request.data['tipo_documento_identificacion_object'][
+                'codigo'] == 'CEDULA' or \
+                    request.data['tipo_documento_identificacion_object'][
+                        'codigo'] == 'RUC':
+
+                if verificar(request.data['numero_identificacion']) is False:
+                    return Response({'data':None,
+                                     'status': status.HTTP_400_BAD_REQUEST,
+                                     'message': 'Número de Identificación Incorrecto'})
+
             serializer = EmpleadoSerializer(empleado, data=request.data)
             if serializer.is_valid():
                 serializer.save()
