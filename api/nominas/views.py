@@ -1,3 +1,6 @@
+import json
+from builtins import print
+
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
@@ -44,7 +47,6 @@ class EmpleadoViewSet(viewsets.ViewSet):
     def create(self, request):
         try:
             empleado = Empleado()
-
             request.data['fecha_inicio'] = format_timezone_to_date(
                 request.data['fecha_inicio'])
             request.data['fecha_nacimiento'] = format_timezone_to_date(
@@ -64,7 +66,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
                 empleado_message = 'Empleado Creado Satisfactoriamente.'
                 empleado_status = status.HTTP_200_OK
             else:
-                empleado_message = serializer.errors
+                empleado_message = json.dumps(serializer.errors)
                 empleado_status = status.HTTP_400_BAD_REQUEST
 
             return Response({'data': serializer.data,
@@ -72,7 +74,6 @@ class EmpleadoViewSet(viewsets.ViewSet):
                              'message': empleado_message})
 
         except Exception as e:
-            print(e)
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
