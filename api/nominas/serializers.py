@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from api.master.serializers import DireccionSerializer
 from app.nominas import models
-from app.nominas.models import Empleado, RolPago, Cargo, Contrato
+from app.nominas.models import Empleado, RolPago, Cargo, Contrato, ConsolidadoRolPago
 
 
 class EmpleadoSerializer(serializers.ModelSerializer):
@@ -17,6 +17,7 @@ class RolPagoSerializer(serializers.ModelSerializer):
         model = RolPago
         fields = '__all__'
 
+
 class CargoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cargo
@@ -26,4 +27,10 @@ class CargoSerializer(serializers.ModelSerializer):
 class ContratoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contrato
+        fields = '__all__'
+
+
+class ConsolidadRolPagoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConsolidadoRolPago
         fields = '__all__'

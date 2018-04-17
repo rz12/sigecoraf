@@ -11,6 +11,7 @@ router.register(r'empleados', views.EmpleadoViewSet, base_name='empleados')
 router.register(r'roles-pago', views.RolPagoViewSet, base_name='roles-pago')
 router.register(r'cargos', views.CargoViewSet, base_name='cargos')
 router.register(r'contratos', views.ContratoViewSet, base_name='contratos')
+router.register(r'consolidado-rolpago-list', views.ConsolidadoRolPagoViewSet, base_name='consolidado-rolpago-list')
 
 router.register(r'rolPago', views.CargoViewSet, base_name='rolPago')
 

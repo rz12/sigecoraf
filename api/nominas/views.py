@@ -2,12 +2,13 @@ from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
 from rest_framework.response import Response
+from setuptools import command
 
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
-    CargoSerializer, ContratoSerializer
+    CargoSerializer, ContratoSerializer, ConsolidadRolPagoSerializer
 from api.seguridad.permissions import IsAuthenticated
 from app.master.views import *
-from app.nominas.models import Empleado, RolPago, Cargo, Contrato
+from app.nominas.models import Empleado, RolPago, Cargo, Contrato, ConsolidadoRolPago
 
 
 class EmpleadoViewSet(viewsets.ViewSet):
@@ -425,3 +426,80 @@ class ContratoViewSet(viewsets.ViewSet):
                                             'status': status.HTTP_400_BAD_REQUEST,
                                             'message': msg}),
                                 content_type='application/json')
+
+class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
+
+    def retrieve(self, request, pk=None):
+        try:
+            objeto = ConsolidadoRolPago.objects.get(id=pk)
+            consolidado_rol_pago = ConsolidadRolPagoSerializer(objeto).data
+            return Response({'data': consolidado_rol_pago, 'status': status.HTTP_200_OK,
+                             'message': None})
+        except ConsolidadoRolPago.DoesNotExist:
+            return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
+                             'message': None})
+
+    @method_decorator(IsAuthenticated())
+    def list(self, request):
+        page = request.GET.get('PAGE')
+        items_per_page = request.GET.get('PAGE_SIZE')
+        filter = request.GET.get('FILTER')
+        queryset = ConsolidadoRolPago.objects.all()
+        count = queryset.count();
+        if filter is not None:
+            queryset = queryset.filter(
+                Q(fecha_desde=filter) | Q(
+                    fecha_hasta=filter) | Q(
+                    observacion__icontains=filter))
+        queryset_pagination = api_paginacion(queryset, int(page),
+                                             items_per_page)
+        serializer = ConsolidadRolPagoSerializer(queryset_pagination, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None, 'count': count})
+
+    def create(self, request):
+        try:
+            consolidado_rol_pago = ConsolidadoRolPago()
+
+            serializer = ConsolidadRolPagoSerializer(consolidado_rol_pago, data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                consolidado_rol_pago_message = 'Empleado Creado Satisfactoriamente.'
+                consolidado_rol_pago_status = status.HTTP_200_OK
+            else:
+                consolidado_rol_pago_message = serializer.errors
+                consolidado_rol_pago_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': consolidado_rol_pago_status,
+                             'message': consolidado_rol_pago_message})
+
+        except Exception as e:
+            print(e)
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    def update(self, request, pk=None):
+        try:
+            consolidado_rol_pago = ConsolidadoRolPago.objects.get(id=pk)
+
+            serializer = consolidado_rol_pago(consolidado_rol_pago, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                consolidado_rol_pago_message = 'Empleado Actualizado Satisfactoriamente.'
+                consolidado_rol_pago_status = status.HTTP_200_OK
+            else:
+                consolidado_rol_pago_message = serializer.errors
+                consolidado_rol_pago_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': consolidado_rol_pago_status,
+                             'message': consolidado_rol_pago_message})
+
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
