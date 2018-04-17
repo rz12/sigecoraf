@@ -124,8 +124,8 @@ class RolPagoViewSet(viewsets.ViewSet):
 
     ##@method_decorator(IsAuthenticated('ROLPAGO', None))
     def list(self, request):
-        queryset.all()
-        serializer = RolPagoSerializer(queryset, many=True)
+        #queryset.all()
+        serializer = RolPagoSerializer(None, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
 
