@@ -11,7 +11,8 @@ from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
     CargoSerializer, ContratoSerializer, ConsolidadRolPagoSerializer
 from api.seguridad.permissions import IsAuthenticated
 from app.master.views import *
-from app.nominas.models import Empleado, RolPago, Cargo, Contrato, ConsolidadoRolPago
+from app.nominas.models import Empleado, RolPago, Cargo, Contrato, \
+    ConsolidadoRolPago
 
 
 class EmpleadoViewSet(viewsets.ViewSet):
@@ -137,7 +138,7 @@ class RolPagoViewSet(viewsets.ViewSet):
 
     ##@method_decorator(IsAuthenticated('ROLPAGO', None))
     def list(self, request):
-        #queryset.all()
+        # queryset.all()
         serializer = RolPagoSerializer(None, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None})
@@ -183,70 +184,6 @@ class RolPagoViewSet(viewsets.ViewSet):
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
-
-
-class ContratoViewSet(viewsets.ViewSet):
-
-    def retrieve(self, request, pk=None):
-        try:
-            objeto = Contrato.objects.get(id=pk)
-            contrato = ContratoSerializer(objeto).data
-            return Response({'data': contrato, 'status': status.HTTP_200_OK,
-                             'message': None})
-        except Contrato.DoesNotExist:
-            return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
-                             'message': None})
-
-    @method_decorator(IsAuthenticated())
-    def list(self, request):
-
-        queryset = Contrato.objects.filter(estado=True).all()
-        serializer = ContratoSerializer(queryset, many=True)
-        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'count': queryset.count(), 'message': None})
-
-    def create(self, request):
-        try:
-            contrato = Contrato()
-            serializer = ContratoSerializer(contrato, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                contrato_message = 'Contrato creado'
-                contrato_status = status.HTTP_200_OK
-            else:
-                contrato_message = serializer.errors
-                contrato_status = status.HTTP_400_BAD_REQUEST
-
-            return Response({'data': serializer.data,
-                             'status': contrato_status,
-                             'message': contrato_message})
-
-        except Exception as e:
-            return Response({'data': None,
-                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
-                             'message': e})
-
-    def update(self, request, pk=None):
-        try:
-            contrato = Contrato.objects.get(id=pk)
-            serializer = ContratoSerializer(contrato, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                contrato_message = 'Contrato actualizado'
-
-            else:
-                contrato_message = serializer.errors
-                contrato_status = status.HTTP_400_BAD_REQUEST
-
-            return Response({'data': serializer.data,
-                             'status': contrato_status,
-                             'message': contrato_message})
-
-        except Exception as e:
-            return Response({'data': None,
-                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
-                             'message': e})
-
 
 class CargoViewSet(viewsets.ViewSet):
 
@@ -321,7 +258,6 @@ class CargoViewSet(viewsets.ViewSet):
                              'message': e})
 
 
-
 class ContratoViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
@@ -334,6 +270,7 @@ class ContratoViewSet(viewsets.ViewSet):
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
 
+    @method_decorator(IsAuthenticated())
     def list(self, request):
 
         page = request.GET.get('PAGE')
@@ -361,7 +298,6 @@ class ContratoViewSet(viewsets.ViewSet):
             if "fecha_fin" in request.data:
                 request.data['fecha_fin'] = format_timezone_to_date(
                     request.data['fecha_fin'])
-            print(request.data)
             contratos_empleado_vigentes = Contrato.objects.filter(
                 empleado__id=request.data['empleado'], estado=True).all()
             print('paso1')
@@ -428,14 +364,16 @@ class ContratoViewSet(viewsets.ViewSet):
                                             'message': msg}),
                                 content_type='application/json')
 
+
 class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         try:
             objeto = ConsolidadoRolPago.objects.get(id=pk)
             consolidado_rol_pago = ConsolidadRolPagoSerializer(objeto).data
-            return Response({'data': consolidado_rol_pago, 'status': status.HTTP_200_OK,
-                             'message': None})
+            return Response(
+                {'data': consolidado_rol_pago, 'status': status.HTTP_200_OK,
+                 'message': None})
         except ConsolidadoRolPago.DoesNotExist:
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
@@ -462,7 +400,8 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
         try:
             consolidado_rol_pago = ConsolidadoRolPago()
 
-            serializer = ConsolidadRolPagoSerializer(consolidado_rol_pago, data=request.data)
+            serializer = ConsolidadRolPagoSerializer(consolidado_rol_pago,
+                                                     data=request.data)
 
             if serializer.is_valid():
                 serializer.save()
@@ -486,7 +425,8 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
         try:
             consolidado_rol_pago = ConsolidadoRolPago.objects.get(id=pk)
 
-            serializer = consolidado_rol_pago(consolidado_rol_pago, data=request.data)
+            serializer = consolidado_rol_pago(consolidado_rol_pago,
+                                              data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 consolidado_rol_pago_message = 'Empleado Actualizado Satisfactoriamente.'
@@ -503,4 +443,3 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
-
