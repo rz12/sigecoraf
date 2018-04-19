@@ -21,6 +21,7 @@ class UsuarioViewSet(viewsets.ViewSet):
         :return:
         """
         try:
+
             token = Token.objects.get(
                 key=request.META[AuthEnum.HTTP_AUTHORIZATION.value])
             if token is None:
@@ -44,7 +45,7 @@ class UsuarioViewSet(viewsets.ViewSet):
                                 status=status.HTTP_400_BAD_REQUEST)
 
             serialized = UsuarioSerializer(usuario)
-            return Response(serialized.data)
+            return Response({'data':serialized.data})
 
         except Exception as e:
             return Response({

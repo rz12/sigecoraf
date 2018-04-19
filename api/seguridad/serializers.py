@@ -6,7 +6,7 @@ from app.seguridad.models import Usuario, Menu
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ('first_name', 'last_name', 'username', 'email')
+        fields = ('first_name', 'last_name', 'username', 'email','empresa')
 
 
 class MenuSerializerRecursive(serializers.Serializer):
