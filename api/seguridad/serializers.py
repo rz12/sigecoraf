@@ -1,9 +1,11 @@
 from rest_framework import serializers
 
+from api.master.serializers import EmpresaSerializer
 from app.seguridad.models import Usuario, Menu
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
+    empresa=EmpresaSerializer(read_only=True)
     class Meta:
         model = Usuario
         fields = ('first_name', 'last_name', 'username', 'email','empresa')

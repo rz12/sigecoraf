@@ -57,6 +57,7 @@ class UsuarioViewSet(viewsets.ViewSet):
 class MenusViewSet(viewsets.ViewSet):
 
     def list(self, request):
+
         queryset = Menu.objects.filter(estado=True,
                                        padre=None).all().order_by('orden')
         serializer = MenuSerializer(queryset, many=True)
@@ -66,6 +67,5 @@ class MenusViewSet(viewsets.ViewSet):
     @list_route()
     @method_decorator(IsAuthenticated())
     def has_permission(self,request):
-        print('vamo bien')
         return Response({'data': True, 'status': status.HTTP_200_OK,
                          'message': None})

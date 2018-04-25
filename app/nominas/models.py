@@ -55,12 +55,13 @@ class EstructuraDetalleRolPago(models.Model):
 class ConsolidadoRolPago(models.Model):
     fecha_desde = models.DateField(auto_now_add=True)
     fecha_hasta = models.DateField(auto_now_add=True)
-    observacion = models.TextField(max_length=500, blank=True, null=True)
-    estado = models.BooleanField(default=True)
+    observacion = models.TextField(max_length=500, blank=False, null=False)
+    validado = models.BooleanField(default=False)
+
 
 
 class RolPago(models.Model):
-    fecha_inicio = models.DateTimeField(auto_now_add=True)
+    fecha = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=12, decimal_places=2)
     consolidado_rolpago = models.ForeignKey('nominas.ConsolidadoRolPago',
                                             related_name='roles_pago',

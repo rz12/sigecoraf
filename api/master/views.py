@@ -131,9 +131,10 @@ class DireccionViewSet(viewsets.ViewSet):
         if 'PERSONA' in request.GET:
             persona = request.GET['PERSONA']
             queryset = queryset.filter(persona_id=persona)
+        count = queryset.count();
         serializer = DireccionSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None})
+                         'message': None,'count':count})
 
     def create(self, request):
         try:

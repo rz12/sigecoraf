@@ -1,11 +1,11 @@
+import datetime
 import json
-from builtins import print
 
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
+from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from setuptools import command
 
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
     CargoSerializer, ContratoSerializer, ConsolidadRolPagoSerializer
@@ -136,12 +136,17 @@ class RolPagoViewSet(viewsets.ViewSet):
             return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
                              'message': None})
 
-    ##@method_decorator(IsAuthenticated('ROLPAGO', None))
     def list(self, request):
-        # queryset.all()
-        serializer = RolPagoSerializer(None, many=True)
+
+        queryset = RolPago.objects.all()
+        consolidado = None
+        if 'CONSOLIDADO_ROLPAGO' in request.GET:
+            consolidado = request.GET['CONSOLIDADO_ROLPAGO']
+            queryset = queryset.filter(consolidado_rolpago=consolidado)
+        count = queryset.count();
+        serializer = RolPagoSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None})
+                         'message': None, 'count': count})
 
     def create(self, request):
         try:
@@ -185,6 +190,33 @@ class RolPagoViewSet(viewsets.ViewSet):
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
 
+    @detail_route(methods=['post'])
+    def create_by_consolidado_rolpago(self, request, pk=None):
+        empresa = request.GET.get("EMPRESA")
+
+        consolidado_rolpago = request.GET.get("CONSOLIDADO_ROLPAGO")
+        queryset = Contrato.objects.filter(empleado__empresa=empresa,
+                                           estado=True).all()
+
+        contratos_by_consolidados = Contrato.objects.filter(
+            roles_pago__consolidado_rolpago=consolidado_rolpago).all()
+        queryset_difference = list(
+            set(queryset).difference(contratos_by_consolidados))
+        roles_pago = []
+
+        for contrato in queryset_difference:
+            rol_pago = RolPago()
+            rol_pago.contrato = contrato
+            rol_pago.fecha_inicio = datetime.date.today
+            rol_pago.total = 0.0
+            rol_pago.consolidado_rolpago_id = consolidado_rolpago
+            rol_pago.save()
+            roles_pago.append(rol_pago)
+        serializer = RolPagoSerializer(roles_pago, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None, "count": len(roles_pago)+len(contratos_by_consolidados)})
+
+
 class CargoViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
@@ -211,7 +243,6 @@ class CargoViewSet(viewsets.ViewSet):
                                              items_per_page)
 
         serializer = CargoSerializer(queryset_pagination, many=True)
-        print(serializer.data, 'aqui')
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'count': count, 'message': None})
 
@@ -300,7 +331,6 @@ class ContratoViewSet(viewsets.ViewSet):
                     request.data['fecha_fin'])
             contratos_empleado_vigentes = Contrato.objects.filter(
                 empleado__id=request.data['empleado'], estado=True).all()
-            print('paso1')
             if contratos_empleado_vigentes.count() > 0:
                 return Response({'data': None,
                                  'status': status.HTTP_400_BAD_REQUEST,
@@ -365,6 +395,7 @@ class ContratoViewSet(viewsets.ViewSet):
                                 content_type='application/json')
 
 
+
 class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
@@ -386,10 +417,7 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
         queryset = ConsolidadoRolPago.objects.all()
         count = queryset.count();
         if filter is not None:
-            queryset = queryset.filter(
-                Q(fecha_desde=filter) | Q(
-                    fecha_hasta=filter) | Q(
-                    observacion__icontains=filter))
+            queryset = queryset.filter(Q(observacion__icontains=filter))
         queryset_pagination = api_paginacion(queryset, int(page),
                                              items_per_page)
         serializer = ConsolidadRolPagoSerializer(queryset_pagination, many=True)
@@ -399,13 +427,16 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
     def create(self, request):
         try:
             consolidado_rol_pago = ConsolidadoRolPago()
-
+            request.data['fecha_desde'] = format_timezone_to_date(
+                request.data['fecha_desde'])
+            request.data['fecha_hasta'] = format_timezone_to_date(
+                request.data['fecha_hasta'])
             serializer = ConsolidadRolPagoSerializer(consolidado_rol_pago,
                                                      data=request.data)
 
             if serializer.is_valid():
                 serializer.save()
-                consolidado_rol_pago_message = 'Empleado Creado Satisfactoriamente.'
+                consolidado_rol_pago_message = 'Consolidado de Rol de Pago Creado Satisfactoriamente.'
                 consolidado_rol_pago_status = status.HTTP_200_OK
             else:
                 consolidado_rol_pago_message = serializer.errors
@@ -416,7 +447,6 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
                              'message': consolidado_rol_pago_message})
 
         except Exception as e:
-            print(e)
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
@@ -424,12 +454,16 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
     def update(self, request, pk=None):
         try:
             consolidado_rol_pago = ConsolidadoRolPago.objects.get(id=pk)
+            request.data['fecha_desde'] = format_timezone_to_date(
+                request.data['fecha_desde'])
+            request.data['fecha_hasta'] = format_timezone_to_date(
+                request.data['fecha_hasta'])
 
-            serializer = consolidado_rol_pago(consolidado_rol_pago,
-                                              data=request.data)
+            serializer = ConsolidadRolPagoSerializer(consolidado_rol_pago,
+                                                     data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                consolidado_rol_pago_message = 'Empleado Actualizado Satisfactoriamente.'
+                consolidado_rol_pago_message = 'Consonsolidado de Rol de Pago Actualizado Satisfactoriamente.'
                 consolidado_rol_pago_status = status.HTTP_200_OK
             else:
                 consolidado_rol_pago_message = serializer.errors
