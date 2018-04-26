@@ -4,7 +4,7 @@ import json
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route,list_route
 from rest_framework.response import Response
 
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
@@ -137,12 +137,18 @@ class RolPagoViewSet(viewsets.ViewSet):
                              'message': None})
 
     def list(self, request):
-
         queryset = RolPago.objects.all()
+        count = queryset.count();
+        serializer = RolPagoSerializer(queryset, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None, 'count': count})
+    @list_route()
+    def list_by_consolidado(self,request):
         consolidado = None
         if 'CONSOLIDADO_ROLPAGO' in request.GET:
             consolidado = request.GET['CONSOLIDADO_ROLPAGO']
-            queryset = queryset.filter(consolidado_rolpago=consolidado)
+
+        queryset = RolPago.objects.filter(consolidado_rolpago=consolidado).all()
         count = queryset.count();
         serializer = RolPagoSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
@@ -477,3 +483,18 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
+    def destroy(self, request, pk=None):
+        consolidado_rol_pago = ConsolidadoRolPago.objects.get(id=pk)
+        try:
+            consolidado_rol_pago.delete()
+            return Response({'data': pk,
+                             'status': status.HTTP_200_OK,
+                             'message': "El consolidado de roles de pago {0} fue eliminado".format(
+                                 consolidado_rol_pago.observacion)
+                             })
+        except ProtectedError:
+            msg = "El Consolidado de Roles de Pago {0} , no puede eliminarse".format(consolidado_rol_pago.id)
+            return HttpResponse(json.dumps({'data': pk,
+                                            'status': status.HTTP_400_BAD_REQUEST,
+                                            'message': msg}),
+                                content_type='application/json')
