@@ -134,11 +134,13 @@ class DireccionViewSet(viewsets.ViewSet):
         count = queryset.count();
         serializer = DireccionSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None,'count':count})
+                         'message': None, 'count': count})
 
     def create(self, request):
         try:
             direccion = Direccion()
+            direccion.tipo_direccion_id = request.data['tipo_direccion']['id']
+            direccion.pais_id = request.data['pais']['id']
             serializer = DireccionSerializer(direccion, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -160,9 +162,9 @@ class DireccionViewSet(viewsets.ViewSet):
     def update(self, request, pk=None):
         try:
             direccion = Direccion.objects.get(id=pk)
-            print(direccion, 'paso 1')
+            direccion.tipo_direccion_id = request.data['tipo_direccion']['id']
+            direccion.pais_id = request.data['pais']['id']
             serializer = DireccionSerializer(direccion, data=request.data)
-            print(direccion, 'paso 2')
             if serializer.is_valid():
                 serializer.save()
                 direccion_message = 'Dirección actualizada satisfactoriamente'

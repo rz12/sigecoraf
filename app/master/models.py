@@ -73,6 +73,8 @@ class Item(models.Model):
                                  on_delete=models.CASCADE)
     padre = models.ForeignKey('self', null=True, blank=True,
                               on_delete=models.CASCADE)
+    def __eq__(self, other):
+        return self.id== other.id
 
 
 class Parametrizacion(models.Model):

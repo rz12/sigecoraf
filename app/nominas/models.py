@@ -46,10 +46,10 @@ class EstructuraDetalleRolPago(models.Model):
                                 related_name='estructuras_detalles_rolpago',
                                 on_delete=models.CASCADE)
     operacion = models.IntegerField(null=False, blank=False)
-    regla=models.TextField(null=False, blank=False)
+    regla = models.TextField(null=False, blank=False)
 
     def __str__(self):
-        return  self.nombre
+        return self.nombre
 
 
 class ConsolidadoRolPago(models.Model):
@@ -57,7 +57,6 @@ class ConsolidadoRolPago(models.Model):
     fecha_hasta = models.DateField(auto_now_add=True)
     observacion = models.TextField(max_length=500, blank=False, null=False)
     validado = models.BooleanField(default=False)
-
 
 
 class RolPago(models.Model):

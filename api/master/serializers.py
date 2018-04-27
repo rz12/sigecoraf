@@ -37,7 +37,11 @@ class EmpresaSerializer(serializers.ModelSerializer):
         model = Empresa
         fields = '__all__'
 
+
 class DireccionSerializer(serializers.ModelSerializer):
+    tipo_direccion = ItemSerializer(read_only=True)
+    pais = ItemSerializer(read_only=True)
+
     class Meta:
         model = Direccion
         fields = '__all__'

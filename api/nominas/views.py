@@ -4,11 +4,12 @@ import json
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
-from rest_framework.decorators import detail_route,list_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
-    CargoSerializer, ContratoSerializer, ConsolidadRolPagoSerializer
+    CargoSerializer, ContratoSerializer, ConsolidadRolPagoSerializer, \
+    EmpleadoDTOSerializer
 from api.seguridad.permissions import IsAuthenticated
 from app.master.views import *
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato, \
@@ -20,7 +21,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         try:
             objeto = Empleado.objects.get(id=pk)
-            empleado = EmpleadoSerializer(objeto).data
+            empleado = EmpleadoDTOSerializer(objeto).data
             return Response({'data': empleado, 'status': status.HTTP_200_OK,
                              'message': None})
         except Empleado.DoesNotExist:
@@ -41,7 +42,8 @@ class EmpleadoViewSet(viewsets.ViewSet):
                     numero_identificacion__icontains=filter))
         queryset_pagination = api_paginacion(queryset, int(page),
                                              items_per_page)
-        serializer = EmpleadoSerializer(queryset_pagination, many=True)
+
+        serializer = EmpleadoDTOSerializer(queryset_pagination, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None, 'count': count})
 
@@ -60,8 +62,12 @@ class EmpleadoViewSet(viewsets.ViewSet):
                 request.data['fecha_ingreso_iess'] = format_timezone_to_date(
                     request.data['fecha_ingreso_iess'])
 
-            serializer = EmpleadoSerializer(empleado, data=request.data)
-
+            empleado.tipo_documento_identificacion_id = \
+                request.data['tipo_documento_identificacion']['id']
+            empleado.genero_id = request.data['genero']['id']
+            empleado.estado_civil_id = request.data['estado_civil']['id']
+            empleado.empresa_id = request.data['empresa']['id']
+            serializer = EmpleadoDTOSerializer(empleado, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 empleado_message = 'Empleado Creado Satisfactoriamente.'
@@ -75,6 +81,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
                              'message': empleado_message})
 
         except Exception as e:
+            print(e)
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
@@ -95,9 +102,9 @@ class EmpleadoViewSet(viewsets.ViewSet):
                 request.data['fecha_ingreso_iess'] = format_timezone_to_date(
                     request.data['fecha_ingreso_iess'])
 
-            if request.data['tipo_documento_identificacion_object'][
+            if request.data['tipo_documento_identificacion'][
                 'codigo'] == 'CEDULA' or \
-                    request.data['tipo_documento_identificacion_object'][
+                    request.data['tipo_documento_identificacion'][
                         'codigo'] == 'RUC':
 
                 if verificar(request.data['numero_identificacion']) is False:
@@ -105,13 +112,18 @@ class EmpleadoViewSet(viewsets.ViewSet):
                                      'status': status.HTTP_400_BAD_REQUEST,
                                      'message': 'Número de Identificación Incorrecto'})
 
-            serializer = EmpleadoSerializer(empleado, data=request.data)
+            empleado.tipo_documento_identificacion_id = \
+                request.data['tipo_documento_identificacion']['id']
+            empleado.genero_id = request.data['genero']['id']
+            empleado.estado_civil_id = request.data['estado_civil']['id']
+            empleado.empresa_id = request.data['empresa']['id']
+            serializer = EmpleadoDTOSerializer(empleado, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 empleado_message = 'Empleado Actualizado Satisfactoriamente.'
                 empleado_status = status.HTTP_200_OK
             else:
-                empleado_message = serializer.errors
+                empleado_message = json.dumps(serializer.errors)
                 empleado_status = status.HTTP_400_BAD_REQUEST
 
             return Response({'data': serializer.data,
@@ -142,8 +154,9 @@ class RolPagoViewSet(viewsets.ViewSet):
         serializer = RolPagoSerializer(queryset, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None, 'count': count})
+
     @list_route()
-    def list_by_consolidado(self,request):
+    def list_by_consolidado(self, request):
         consolidado = None
         if 'CONSOLIDADO_ROLPAGO' in request.GET:
             consolidado = request.GET['CONSOLIDADO_ROLPAGO']
@@ -220,7 +233,8 @@ class RolPagoViewSet(viewsets.ViewSet):
             roles_pago.append(rol_pago)
         serializer = RolPagoSerializer(roles_pago, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
-                         'message': None, "count": len(roles_pago)+len(contratos_by_consolidados)})
+                         'message': None, "count": len(roles_pago) + len(
+                contratos_by_consolidados)})
 
 
 class CargoViewSet(viewsets.ViewSet):
@@ -366,6 +380,8 @@ class ContratoViewSet(viewsets.ViewSet):
             if "fecha_fin" in request.data:
                 request.data['fecha_fin'] = format_timezone_to_date(
                     request.data['fecha_fin'])
+            contrato.empleado_id = request.data['empleado']['id']
+            contrato.cargo_id = request.data['cargo']['id']
             serializer = ContratoSerializer(contrato, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -399,7 +415,6 @@ class ContratoViewSet(viewsets.ViewSet):
                                             'status': status.HTTP_400_BAD_REQUEST,
                                             'message': msg}),
                                 content_type='application/json')
-
 
 
 class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
@@ -483,6 +498,7 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
+
     def destroy(self, request, pk=None):
         consolidado_rol_pago = ConsolidadoRolPago.objects.get(id=pk)
         try:
@@ -493,7 +509,8 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
                                  consolidado_rol_pago.observacion)
                              })
         except ProtectedError:
-            msg = "El Consolidado de Roles de Pago {0} , no puede eliminarse".format(consolidado_rol_pago.id)
+            msg = "El Consolidado de Roles de Pago {0} , no puede eliminarse".format(
+                consolidado_rol_pago.id)
             return HttpResponse(json.dumps({'data': pk,
                                             'status': status.HTTP_400_BAD_REQUEST,
                                             'message': msg}),
