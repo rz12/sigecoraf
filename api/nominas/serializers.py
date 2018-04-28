@@ -20,9 +20,11 @@ class EmpleadoDTOSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empleado
         fields = '__all__'
-        
+
 
 class CargoSerializer(serializers.ModelSerializer):
+    empresa = EmpresaSerializer(read_only=True)
+
     class Meta:
         model = Cargo
         fields = '__all__'

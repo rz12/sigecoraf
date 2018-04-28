@@ -26,6 +26,7 @@ class IsAuthenticated(object):
             menu = None
             if 'MENU' in request.GET:
                 menu = request.GET['MENU']
+
             permission = verificar_permisos_acceso(token, menu,
                                                    None)
             if (permission['isPermission'] is False):

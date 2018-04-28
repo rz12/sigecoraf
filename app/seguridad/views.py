@@ -38,7 +38,6 @@ def verificar_permisos_acceso(token, menu=None, permiso=None):
                 result['isPermission'] = False
                 result['message'] = MessageEnum.USER_NOT_PERMISSION.value
                 return result
-
         return result
 
     except Exception as e:

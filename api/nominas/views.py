@@ -269,6 +269,7 @@ class CargoViewSet(viewsets.ViewSet):
     def create(self, request):
         try:
             cargo = Cargo()
+            cargo.empresa_id = request.data['empresa']['id']
             serializer = CargoSerializer(cargo, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -290,6 +291,7 @@ class CargoViewSet(viewsets.ViewSet):
     def update(self, request, pk=None):
         try:
             cargo = Cargo.objects.get(id=pk)
+            cargo.empresa_id = request.data['empresa']['id']
             serializer = CargoSerializer(cargo, data=request.data)
             if serializer.is_valid():
                 serializer.save()
