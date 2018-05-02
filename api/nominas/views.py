@@ -7,13 +7,13 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
-from api.nominas.serializers import EmpleadoSerializer, RolPagoSerializer, \
+from api.nominas.serializers import RolPagoSerializer, \
     CargoSerializer, ContratoSerializer, ConsolidadRolPagoSerializer, \
-    EmpleadoDTOSerializer
+    EmpleadoSerializer, DetalleRolPagoSerializer
 from api.seguridad.permissions import IsAuthenticated
 from app.master.views import *
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato, \
-    ConsolidadoRolPago
+    ConsolidadoRolPago, DetalleRolPago, EstructuraDetalleRolPago
 
 
 class EmpleadoViewSet(viewsets.ViewSet):
@@ -21,7 +21,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         try:
             objeto = Empleado.objects.get(id=pk)
-            empleado = EmpleadoDTOSerializer(objeto).data
+            empleado = EmpleadoSerializer(objeto).data
             return Response({'data': empleado, 'status': status.HTTP_200_OK,
                              'message': None})
         except Empleado.DoesNotExist:
@@ -43,7 +43,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
         queryset_pagination = api_paginacion(queryset, int(page),
                                              items_per_page)
 
-        serializer = EmpleadoDTOSerializer(queryset_pagination, many=True)
+        serializer = EmpleadoSerializer(queryset_pagination, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None, 'count': count})
 
@@ -67,7 +67,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
             empleado.genero_id = request.data['genero']['id']
             empleado.estado_civil_id = request.data['estado_civil']['id']
             empleado.empresa_id = request.data['empresa']['id']
-            serializer = EmpleadoDTOSerializer(empleado, data=request.data)
+            serializer = EmpleadoSerializer(empleado, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 empleado_message = 'Empleado Creado Satisfactoriamente.'
@@ -117,7 +117,7 @@ class EmpleadoViewSet(viewsets.ViewSet):
             empleado.genero_id = request.data['genero']['id']
             empleado.estado_civil_id = request.data['estado_civil']['id']
             empleado.empresa_id = request.data['empresa']['id']
-            serializer = EmpleadoDTOSerializer(empleado, data=request.data)
+            serializer = EmpleadoSerializer(empleado, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 empleado_message = 'Empleado Actualizado Satisfactoriamente.'
@@ -450,9 +450,9 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
     def create(self, request):
         try:
             consolidado_rol_pago = ConsolidadoRolPago()
-            request.data['fecha_desde'] = format_timezone_to_date(
+            consolidado_rol_pago.fecha_desde = format_timezone_to_date(
                 request.data['fecha_desde'])
-            request.data['fecha_hasta'] = format_timezone_to_date(
+            consolidado_rol_pago.fecha_hasta = format_timezone_to_date(
                 request.data['fecha_hasta'])
             serializer = ConsolidadRolPagoSerializer(consolidado_rol_pago,
                                                      data=request.data)
@@ -477,9 +477,9 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
     def update(self, request, pk=None):
         try:
             consolidado_rol_pago = ConsolidadoRolPago.objects.get(id=pk)
-            request.data['fecha_desde'] = format_timezone_to_date(
+            consolidado_rol_pago.fecha_desde = format_timezone_to_date(
                 request.data['fecha_desde'])
-            request.data['fecha_hasta'] = format_timezone_to_date(
+            consolidado_rol_pago.fecha_hasta = format_timezone_to_date(
                 request.data['fecha_hasta'])
 
             serializer = ConsolidadRolPagoSerializer(consolidado_rol_pago,
@@ -517,3 +517,141 @@ class ConsolidadoRolPagoViewSet(viewsets.ViewSet):
                                             'status': status.HTTP_400_BAD_REQUEST,
                                             'message': msg}),
                                 content_type='application/json')
+
+
+class DetalleRolPagoViewSet(viewsets.ViewSet):
+
+    def retrieve(self, request, pk=None):
+        try:
+            objeto = DetalleRolPago.objects.get(id=pk)
+            detalle_rolpago = DetalleRolPagoSerializer(objeto).data
+            return Response(
+                {'data': detalle_rolpago, 'status': status.HTTP_200_OK,
+                 'message': None})
+        except DetalleRolPago.DoesNotExist:
+            return Response({'data': None, 'status': status.HTTP_404_NOT_FOUND,
+                             'message': None})
+
+    @method_decorator(IsAuthenticated())
+    def list(self, request):
+        page = request.GET.get('PAGE')
+        items_per_page = request.GET.get('PAGE_SIZE')
+        filter = request.GET.get('FILTER')
+        queryset = DetalleRolPago.objects.all()
+        count = queryset.count();
+        if filter is not None:
+            queryset = queryset.filter(Q(observacion__icontains=filter))
+        queryset_pagination = api_paginacion(queryset, int(page),
+                                             items_per_page)
+        serializer = DetalleRolPagoSerializer(queryset_pagination, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None, 'count': count})
+
+    @list_route()
+    def list_by_rolpago(self, request):
+        page = request.GET.get('PAGE')
+        items_per_page = request.GET.get('PAGE_SIZE')
+        filter = request.GET.get('FILTER')
+        rol_pago = request.GET.get('ROL_PAGO')
+        queryset = DetalleRolPago.filter(rol_pago=rol_pago).objects.all()
+        count = queryset.count();
+        if filter is not None:
+            queryset = queryset.filter(Q(observacion__icontains=filter))
+        queryset_pagination = api_paginacion(queryset, int(page),
+                                             items_per_page)
+        serializer = DetalleRolPagoSerializer(queryset_pagination, many=True)
+        return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
+                         'message': None, 'count': count})
+
+    def create(self, request):
+        try:
+            detalle_rol_pago = DetalleRolPago()
+            serializer = DetalleRolPagoSerializer(detalle_rol_pago,
+                                                  data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                detalle_rol_pago_message = 'DetalleRolPago Creado Satisfactoriamente.'
+                detalle_rol_pago_status = status.HTTP_200_OK
+            else:
+                detalle_rol_pago_message = serializer.errors
+                detalle_rol_pago_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': detalle_rol_pago_status,
+                             'message': detalle_rol_pago_message})
+
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    def update(self, request, pk=None):
+        try:
+            detalle_rol_pago = DetalleRolPago.objects.get(id=pk)
+            serializer = DetalleRolPagoSerializer(consolidado_rol_pago,
+                                                  data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                consolidado_rol_pago_message = 'Consonsolidado de Rol de Pago Actualizado Satisfactoriamente.'
+                consolidado_rol_pago_status = status.HTTP_200_OK
+            else:
+                consolidado_rol_pago_message = serializer.errors
+                consolidado_rol_pago_status = status.HTTP_400_BAD_REQUEST
+
+            return Response({'data': serializer.data,
+                             'status': consolidado_rol_pago_status,
+                             'message': consolidado_rol_pago_message})
+
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    def destroy(self, request, pk=None):
+        consolidado_rol_pago = ConsolidadoRolPago.objects.get(id=pk)
+        try:
+            consolidado_rol_pago.delete()
+            return Response({'data': pk,
+                             'status': status.HTTP_200_OK,
+                             'message': "El consolidado de roles de pago {0} fue eliminado".format(
+                                 consolidado_rol_pago.observacion)
+                             })
+        except ProtectedError:
+            msg = "El Consolidado de Roles de Pago {0} , no puede eliminarse".format(
+                consolidado_rol_pago.id)
+            return HttpResponse(json.dumps({'data': pk,
+                                            'status': status.HTTP_400_BAD_REQUEST,
+                                            'message': msg}),
+                                content_type='application/json')
+
+    @detail_route(methods=['post'])
+    def create_detalles_by_rolpago(self, request, pk=None):
+        try:
+            empresa = request.GET.get("EMPRESA")
+            rol_pago_id = request.GET.get("ROL_PAGO")
+            estructuras_detalle_rolpago = EstructuraDetalleRolPago.objects.filter(
+                estado=True, empresa=empresa).all()
+            estructuras_detalle_rolpago_by_rolpago = EstructuraDetalleRolPago.objects.filter(
+                detalles__rol_pago=rol_pago_id).all()
+            estructuras_detalles_diff = list(
+                set(estructuras_detalle_rolpago).difference(
+                    estructuras_detalle_rolpago_by_rolpago))
+            detalles_rolpago = []
+            for estructura in estructuras_detalles_diff:
+                detalle_rolpago = DetalleRolPago()
+                detalle_rolpago.nombre = estructura.nombre
+                detalle_rolpago.descripcion = ""
+                detalle_rolpago.estructura_detalle_rolpago = estructura
+                detalle_rolpago.rol_pago_id = rol_pago_id
+                detalle_rolpago.save()
+                detalles_rolpago.append(detalle_rolpago)
+            serializer = DetalleRolPagoSerializer(detalles_rolpago, many=True)
+            return Response(
+                {'data': serializer.data, 'status': status.HTTP_200_OK,
+                 'message': None, "count": len(detalles_rolpago) + len(
+                    estructuras_detalle_rolpago)})
+        except Exception as e:
+            return Response(
+                {'data': None, 'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                 'message': json.dumps(e)})

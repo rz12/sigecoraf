@@ -11,7 +11,7 @@ router.register(r'empleados', views.EmpleadoViewSet, base_name='empleados')
 router.register(r'cargos', views.CargoViewSet, base_name='cargos')
 router.register(r'contratos', views.ContratoViewSet, base_name='contratos')
 router.register(r'consolidado-rolpago', views.ConsolidadoRolPagoViewSet, base_name='consolidado-rolpago')
-
+router.register(r'detalle-rolpago', views.DetalleRolPagoViewSet, base_name='detalle-rolpago')
 router.register(r'rol-pago', views.RolPagoViewSet, base_name='rol-pago')
 
 urlpatterns = [
