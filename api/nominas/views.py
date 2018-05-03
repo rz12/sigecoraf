@@ -553,7 +553,7 @@ class DetalleRolPagoViewSet(viewsets.ViewSet):
         items_per_page = request.GET.get('PAGE_SIZE')
         filter = request.GET.get('FILTER')
         rol_pago = request.GET.get('ROL_PAGO')
-        queryset = DetalleRolPago.filter(rol_pago=rol_pago).objects.all()
+        queryset = DetalleRolPago.objects.filter(rol_pago=rol_pago).all()
         count = queryset.count();
         if filter is not None:
             queryset = queryset.filter(Q(observacion__icontains=filter))
