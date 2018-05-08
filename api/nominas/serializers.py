@@ -33,12 +33,6 @@ class ContratoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RolPagoSerializer(serializers.ModelSerializer):
-    contrato = ContratoSerializer(read_only=True)
-
-    class Meta:
-        model = RolPago
-        fields = '__all__'
 
 
 class ConsolidadRolPagoSerializer(serializers.ModelSerializer):
@@ -46,6 +40,13 @@ class ConsolidadRolPagoSerializer(serializers.ModelSerializer):
         model = ConsolidadoRolPago
         fields = '__all__'
 
+class RolPagoSerializer(serializers.ModelSerializer):
+    contrato = ContratoSerializer(read_only=True)
+    consolidado_rolpago = ConsolidadRolPagoSerializer(read_only=True)
+
+    class Meta:
+        model = RolPago
+        fields = '__all__'
 
 class EstructuraDetalleRolPagoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,6 +57,7 @@ class EstructuraDetalleRolPagoSerializer(serializers.ModelSerializer):
 class DetalleRolPagoSerializer(serializers.ModelSerializer):
     estructura_detalle_rolpago = EstructuraDetalleRolPagoSerializer(
         read_only=True)
+    rol_pago = RolPagoSerializer(read_only=True)
 
     class Meta:
         model = DetalleRolPago
