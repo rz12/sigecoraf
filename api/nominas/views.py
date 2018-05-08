@@ -11,6 +11,7 @@ from api.nominas.serializers import RolPagoSerializer, \
     CargoSerializer, ContratoSerializer, ConsolidadRolPagoSerializer, \
     EmpleadoSerializer, DetalleRolPagoSerializer
 from api.seguridad.permissions import IsAuthenticated
+from app.master.models import Parametrizacion
 from app.master.views import *
 from app.nominas.models import Empleado, RolPago, Cargo, Contrato, \
     ConsolidadoRolPago, DetalleRolPago, EstructuraDetalleRolPago
@@ -203,6 +204,38 @@ class RolPagoViewSet(viewsets.ViewSet):
             return Response({'data': serializer.data,
                              'status': rolPago_status,
                              'message': rolPago_message})
+
+        except Exception as e:
+            return Response({'data': None,
+                             'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             'message': e})
+
+    @detail_route(methods=['put'])
+    def update_with_detalles(self, request, pk=None):
+        try:
+
+            rol_pago = RolPago.objects.get(id=pk)
+            detalles = request.data['detalles']
+            serializer = RolPagoSerializer(rol_pago, data=request.data)
+            print("paso1")
+            for detalle in detalles:
+                print(detalle['id'],detalle['cantidad'],detalle['valor'])
+                detalle_rolpago = DetalleRolPago.objects.get(id=detalle['id'])
+                serializer_detalle=DetalleRolPagoSerializer(detalle_rolpago,data=detalle)
+                if serializer_detalle.is_valid():
+                    serializer_detalle.save()
+
+            if serializer.is_valid():
+                serializer.save()
+
+                rolpago_message = 'Rol de Pago actualizado Satisfactoriamente.'
+                rolpago_status = status.HTTP_200_OK
+            else:
+                rolpago_message = json.dumps(serializer.errors)
+                rolpago_status = status.HTTP_400_BAD_REQUEST
+            return Response({'data': serializer.data,
+                             'status': rolpago_message,
+                             'message': rolpago_status})
 
         except Exception as e:
             return Response({'data': None,
@@ -553,12 +586,24 @@ class DetalleRolPagoViewSet(viewsets.ViewSet):
         items_per_page = request.GET.get('PAGE_SIZE')
         filter = request.GET.get('FILTER')
         rol_pago = request.GET.get('ROL_PAGO')
-        queryset = DetalleRolPago.objects.filter(rol_pago=rol_pago).all()
-        count = queryset.count();
+        queryset = DetalleRolPago.objects.filter(rol_pago=rol_pago)
+        count = queryset.all().count();
+        param = Parametrizacion.objects.get(codigo="REGLAS_NEGOCIO")
         if filter is not None:
             queryset = queryset.filter(Q(observacion__icontains=filter))
-        queryset_pagination = api_paginacion(queryset, int(page),
+        queryset_pagination = api_paginacion(queryset.all(), int(page),
                                              items_per_page)
+
+        for detalle in queryset_pagination:
+
+            if detalle.estructura_detalle_rolpago.editable is False:
+                var = {}
+                exec(detalle.estructura_detalle_rolpago.regla, var)
+                method = (var['calcular'])
+
+                detalle = (method(detalle, detalle.rol_pago.contrato.empleado,
+                                  param))
+
         serializer = DetalleRolPagoSerializer(queryset_pagination, many=True)
         return Response({'data': serializer.data, 'status': status.HTTP_200_OK,
                          'message': None, 'count': count})
@@ -651,6 +696,39 @@ class DetalleRolPagoViewSet(viewsets.ViewSet):
                 {'data': serializer.data, 'status': status.HTTP_200_OK,
                  'message': None, "count": len(detalles_rolpago) + len(
                     estructuras_detalle_rolpago)})
+        except Exception as e:
+            return Response(
+                {'data': None, 'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                 'message': json.dumps(e)})
+
+    @list_route()
+    def get_valor_by_rule(self, request):
+        """
+
+        :param request:
+        :return:
+        """
+        try:
+
+            detalle_rol_pago = json.loads(request.GET.get("DETALLE_ROL_PAGO"))
+            detalle_object = DetalleRolPago()
+            detalle_object.cantidad = detalle_rol_pago['cantidad']
+            detalle_object.valor = detalle_rol_pago['valor']
+            param = Parametrizacion.objects.get(codigo="REGLAS_NEGOCIO")
+            regla = EstructuraDetalleRolPago.objects.get(
+                id=detalle_rol_pago['estructura_detalle_rolpago']['id'])
+
+            empleado = Empleado.objects.get(
+                id=detalle_rol_pago["rol_pago"]['contrato']["empleado"]["id"])
+            var = {}
+            exec(regla.regla, var)
+            method = (var['calcular'])
+            detalle_object = (method(detalle_object,
+                                     empleado, param))
+            detalle_rol_pago['valor'] = detalle_object.valor
+            return Response(
+                {'data': detalle_rol_pago, 'status': status.HTTP_200_OK,
+                 'message': None, })
         except Exception as e:
             return Response(
                 {'data': None, 'status': status.HTTP_500_INTERNAL_SERVER_ERROR,

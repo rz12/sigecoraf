@@ -79,4 +79,6 @@ class DetalleRolPago(models.Model):
     rol_pago = models.ForeignKey('nominas.RolPago', related_name='detalles',
                                  on_delete=models.CASCADE)
     valor = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
-    cantidad = models.TextField(default="", null=True, blank=True)
+    cantidad = models.DecimalField(default=1.00, max_digits=12,
+                                   decimal_places=2, null=True, blank=True)
+    pagado = models.BooleanField(default=True)

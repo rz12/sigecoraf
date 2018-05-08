@@ -75,11 +75,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='detallerolpago',
             name='estructura_detalle_rolpago',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='detalles', to='nominas.EstructuraDetalleRolPago'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='detalles', to='nominas_report.EstructuraDetalleRolPago'),
         ),
         migrations.AddField(
             model_name='detallerolpago',
             name='rol_pago',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='detalles', to='nominas.RolPago'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='detalles', to='nominas_report.RolPago'),
         ),
     ]
