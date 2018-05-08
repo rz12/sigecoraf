@@ -63,6 +63,16 @@ class EmpleadoViewSet(viewsets.ViewSet):
                 request.data['fecha_ingreso_iess'] = format_timezone_to_date(
                     request.data['fecha_ingreso_iess'])
 
+            if request.data['tipo_documento_identificacion'][
+                'codigo'] == 'CEDULA' or \
+                    request.data['tipo_documento_identificacion'][
+                        'codigo'] == 'RUC':
+
+                if verificar(request.data['numero_identificacion']) is False:
+                    return Response({'data': None,
+                                     'status': status.HTTP_400_BAD_REQUEST,
+                                     'message': 'Número de Identificación Incorrecto'})
+
             empleado.tipo_documento_identificacion_id = \
                 request.data['tipo_documento_identificacion']['id']
             empleado.genero_id = request.data['genero']['id']
