@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'^api/v1/nominas/', include('api.nominas.urls')),
     url(r'^api/v1/seguridad/', include('api.seguridad.urls')),
     url(r'^api/v1/master/', include('api.master.urls')),
+    url(r'^reportes/v1/nominas_report/', include('reportes.nominas_report.urls')),
 ]
 urlpatterns += staticfiles_urlpatterns()

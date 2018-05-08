@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class NominasConfig(AppConfig):
-    name = 'nominas'
+    name = 'nominas_report'
