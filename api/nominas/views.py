@@ -92,7 +92,6 @@ class EmpleadoViewSet(viewsets.ViewSet):
                              'message': empleado_message})
 
         except Exception as e:
-            print(e)
             return Response({'data': None,
                              'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                              'message': e})
@@ -227,9 +226,7 @@ class RolPagoViewSet(viewsets.ViewSet):
             rol_pago = RolPago.objects.get(id=pk)
             detalles = request.data['detalles']
             serializer = RolPagoSerializer(rol_pago, data=request.data)
-            print("paso1")
             for detalle in detalles:
-                print(detalle['id'],detalle['cantidad'],detalle['valor'])
                 detalle_rolpago = DetalleRolPago.objects.get(id=detalle['id'])
                 serializer_detalle=DetalleRolPagoSerializer(detalle_rolpago,data=detalle)
                 if serializer_detalle.is_valid():
@@ -395,11 +392,13 @@ class ContratoViewSet(viewsets.ViewSet):
                 request.data['fecha_fin'] = format_timezone_to_date(
                     request.data['fecha_fin'])
             contratos_empleado_vigentes = Contrato.objects.filter(
-                empleado__id=request.data['empleado'], estado=True).all()
+                empleado__id=request.data['empleado']['id'], estado=True).all()
             if contratos_empleado_vigentes.count() > 0:
                 return Response({'data': None,
                                  'status': status.HTTP_400_BAD_REQUEST,
                                  'message': "El empleado ya tiene un contrato"})
+            contrato.empleado_id = request.data['empleado']['id']
+            contrato.cargo_id = request.data['cargo']['id']
             serializer = ContratoSerializer(contrato, data=request.data)
             if serializer.is_valid():
                 serializer.save()
