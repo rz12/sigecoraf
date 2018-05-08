@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rolpago',
             name='consolidado_rolpago',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='roles_pago', to='nominas_report.ConsolidadoRolPago'),
+            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='roles_pago', to='nominas.ConsolidadoRolPago'),
             preserve_default=False,
         ),
     ]
