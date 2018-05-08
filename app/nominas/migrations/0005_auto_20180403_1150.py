@@ -15,19 +15,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contrato',
             name='cargo',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='contratos', to='nominas_report.Cargo'),
+            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='contratos', to='nominas.Cargo'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='contrato',
             name='empleado',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='contratos', to='nominas_report.Empleado'),
+            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='contratos', to='nominas.Empleado'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='rolpago',
             name='contrato',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='roles_pago', to='nominas_report.Contrato'),
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='roles_pago', to='nominas.Contrato'),
             preserve_default=False,
         ),
     ]
